@@ -1,0 +1,25 @@
+name: vital_flutter_app
+description: "VITAL Health Tracker — PRD Compliant Edition (Ultra-lightweight)."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: 1.0.8
+  provider: 6.1.5+1
+  http: 1.6.0
+  shared_preferences: 2.3.0
+  google_fonts: ^8.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: 6.0.0
+
+flutter:
+  uses-material-design: true

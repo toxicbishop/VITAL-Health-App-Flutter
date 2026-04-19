@@ -1,0 +1,101 @@
+VITAL Health App — Developer Setup
+===================================
+
+1. PREREQUISITES
+----------------
+- Flutter SDK 3.11 or newer  (run `flutter --version`)
+- Android Studio (or Android SDK command-line tools)
+- JDK 17+  (Flutter will use the one at JAVA_HOME)
+- Git
+
+Verify your toolchain:
+    flutter doctor
+
+Resolve any red Xs before continuing.
+
+
+2. CLONE AND INSTALL DEPENDENCIES
+---------------------------------
+    git clone <repo-url>
+    cd VITAL-Health-App-Flutter
+    flutter pub get
+
+
+3. GOOGLE OAUTH CLIENT ID (REQUIRED)
+------------------------------------
+The app uses Google Sign-In to sync data to Google Sheets. The Client ID
+is intentionally NOT committed to the repo — you must supply it at build
+time via --dart-define.
+
+Ask the project owner for the **Web** OAuth Client ID (not the Android one
+— the Android client is matched implicitly by package name + SHA-1).
+
+Without this value the app compiles but throws
+    "Google Client ID not configured"
+at sign-in.
+
+
+4. RUNNING IN DEV
+-----------------
+    flutter run --dart-define=GOOGLE_CLIENT_ID=<web-client-id>
+
+
+5. BUILDING APKs
+----------------
+Debug:
+    flutter build apk --debug --dart-define=GOOGLE_CLIENT_ID=<web-client-id>
+
+Release:
+    flutter build apk --release --dart-define=GOOGLE_CLIENT_ID=<web-client-id>
+
+Outputs:
+    build/app/outputs/flutter-apk/app-debug.apk
+    build/app/outputs/flutter-apk/app-release.apk
+
+
+6. RELEASE APK + GOOGLE SIGN-IN
+-------------------------------
+A release build fails Google Sign-In with `ApiException: 10` unless the
+signing keystore's SHA-1 is registered on the OAuth client in Google
+Cloud Console. Debug builds work out of the box (debug SHA-1 is already
+registered).
+
+
+7. COMMON GOTCHA: android/gradle.properties
+-------------------------------------------
+Do NOT commit `org.gradle.java.home=...` to android/gradle.properties.
+Android Studio sometimes auto-writes a Windows path there. On Linux CI
+this breaks with:
+    "Value '...' given for org.gradle.java.home Gradle property is invalid"
+
+If CI fails with that error, delete the line and re-commit. Locally you
+don't need it — JAVA_HOME resolves the JDK.
+
+
+8. CI / CD
+----------
+GitHub Actions injects GOOGLE_CLIENT_ID from repository secrets. If you
+fork the repo, add your own GOOGLE_CLIENT_ID secret.
+
+Format check runs in CI:
+    dart format --output=none --set-exit-if-changed .
+Always run `dart format .` before pushing.
+
+
+9. PROJECT LAYOUT (quick tour)
+------------------------------
+    lib/core/            Theme, env config, validators
+    lib/data/            Floor DB entities + DAOs
+    lib/domain/          Services (sync, notifications, PDF)
+    lib/presentation/    UI — screens, widgets, providers
+    android/             Android-specific build config
+    assets/              Images, fonts
+    test/                Widget + unit tests
+
+
+10. USEFUL COMMANDS
+-------------------
+    flutter analyze          # static analysis, must be clean
+    dart format .            # apply formatting
+    flutter test             # run test suite
+    flutter clean            # nuke build artifacts if something's weird

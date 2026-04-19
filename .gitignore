@@ -1,0 +1,103 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.venv/
+__pycache__/
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code related
+.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/Pods/
+**/ios/Pods/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+devtools_options.yaml
+.metadata
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Android build
+/android/build/
+/android/app/build/
+/android/.gradle/
+/android/.kotlin/
+/android/local.properties
+/android/*.iml
+
+# Platform build dirs
+/ios/Flutter/Flutter.framework
+/ios/Flutter/Flutter.podspec
+/macos/Flutter/GeneratedPluginRegistrant.swift
+/windows/flutter/generated_plugin_registrant.cc
+/windows/flutter/generated_plugin_registrant.h
+/linux/flutter/generated_plugin_registrant.cc
+/linux/flutter/generated_plugin_registrant.h
+
+# ==========================================
+# Security — Never commit secrets or keys
+# ==========================================
+
+# Environment / secret config files
+.env
+.env.*
+*.env
+env.dart
+secrets.dart
+secrets.json
+secrets.yaml
+
+# Keystores & signing
+*.jks
+*.keystore
+key.properties
+release-signing.properties
+
+# Google Services config (contains API keys)
+google-services.json
+GoogleService-Info.plist
+
+# Firebase
+firebase_options.dart
+
+# Claude / AI assistant
+.claude/
+
+# OS junk
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+*.stackdump
+
+#Claude
+.claude/
