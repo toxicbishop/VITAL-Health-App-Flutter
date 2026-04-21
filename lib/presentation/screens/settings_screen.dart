@@ -2,66 +2,78 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_config_provider.dart';
 
-const _creamBg = Color(0xFFF5F3EC);
-const _creamCard = Color(0xFFFAF8F2);
-const _tanButton = Color(0xFFDBD5C4);
-const _textMain = Color(0xFF0D0C0A);
-const _textMuted = Color(0xFF6B6659);
-const _primaryBlack = Color(0xFF000000);
-const _dangerRed = Color(0xFFB00020);
-
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
+
+  Color _creamBg(BuildContext context) => Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1A1714) : const Color(0xFFF5F3EC);
+  Color _creamCard(BuildContext context) => Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2520) : const Color(0xFFFAF8F2);
+  Color _tanButton(BuildContext context) => Theme.of(context).brightness == Brightness.dark ? const Color(0xFF3D352C) : const Color(0xFFDBD5C4);
+  Color _textMain(BuildContext context) => Theme.of(context).brightness == Brightness.dark ? const Color(0xFFE8E0D4) : const Color(0xFF0D0C0A);
+  Color _textMuted(BuildContext context) => Theme.of(context).brightness == Brightness.dark ? const Color(0xFF9C9080) : const Color(0xFF6B6659);
+  Color _primaryBlack(BuildContext context) => Theme.of(context).brightness == Brightness.dark ? const Color(0xFFE8E0D4) : const Color(0xFF000000);
+  Color _dangerRed(BuildContext context) => const Color(0xFFB00020);
 
   @override
   Widget build(BuildContext context) {
     final cfg = context.watch<AppConfigProvider>();
 
     return Container(
-      color: _creamBg,
+      color: _creamBg(context),
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+            Text(
               'Settings',
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: _textMain,
+                color: _textMain(context),
               ),
             ),
-            const Text(
+            Text(
               'App configuration & preferences',
-              style: TextStyle(color: _textMuted, fontSize: 14),
+              style: TextStyle(color: _textMuted(context), fontSize: 14),
             ),
             const SizedBox(height: 24),
-            _SectionHeader(title: 'PROFILE'),
+            _SectionHeader(title: 'PROFILE', color: _textMuted(context)),
             const SizedBox(height: 8),
             _Card(
+              color: _creamCard(context),
               child: Column(
                 children: [
                   _InfoRow(
                     icon: Icons.person_outline,
                     label: "Mom's Name",
                     value: cfg.userName.isNotEmpty ? cfg.userName : '--',
+                    iconBg: _tanButton(context),
+                    iconColor: _primaryBlack(context),
+                    labelColor: _textMain(context),
+                    valueColor: _textMuted(context),
+                    onTap: () => _editName(context, cfg),
                   ),
-                  const Divider(color: _creamBg, height: 1),
+                  Divider(color: _creamBg(context), height: 1),
                   _InfoRow(
                     icon: Icons.link,
                     label: 'Backend URL',
                     value: cfg.scriptUrl.isNotEmpty
                         ? '${cfg.scriptUrl.substring(0, cfg.scriptUrl.length.clamp(0, 40))}…'
                         : '--',
+                    iconBg: _tanButton(context),
+                    iconColor: _primaryBlack(context),
+                    labelColor: _textMain(context),
+                    valueColor: _textMuted(context),
+                    onTap: () => _editUrl(context, cfg),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            _SectionHeader(title: 'APPEARANCE'),
+            _SectionHeader(title: 'APPEARANCE', color: _textMuted(context)),
             const SizedBox(height: 8),
             _Card(
+              color: _creamCard(context),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
@@ -70,17 +82,17 @@ class SettingsScreen extends StatelessWidget {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: _primaryBlack,
+                        color: _primaryBlack(context),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.palette_outlined,
-                          color: _creamBg, size: 20),
+                      child: Icon(Icons.palette_outlined,
+                          color: _creamBg(context), size: 20),
                     ),
                     const SizedBox(width: 16),
-                    const Expanded(
+                    Expanded(
                       child: Text('Theme Mode',
                           style: TextStyle(
-                            color: _textMain,
+                            color: _textMain(context),
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                           )),
@@ -88,17 +100,17 @@ class SettingsScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       decoration: BoxDecoration(
-                        color: _creamBg,
+                        color: _creamBg(context),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: _tanButton),
+                        border: Border.all(color: _tanButton(context)),
                       ),
                       child: DropdownButton<ThemeMode>(
                         value: cfg.themeMode,
                         onChanged: (m) => cfg.setThemeMode(m!),
                         underline: const SizedBox.shrink(),
-                        dropdownColor: _creamCard,
-                        style: const TextStyle(
-                            color: _textMain, fontSize: 14),
+                        dropdownColor: _creamCard(context),
+                        style: TextStyle(
+                            color: _textMain(context), fontSize: 14),
                         items: const [
                           DropdownMenuItem(
                               value: ThemeMode.system,
@@ -117,21 +129,21 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            _SectionHeader(title: 'ABOUT'),
+            _SectionHeader(title: 'ABOUT', color: _textMuted(context)),
             const SizedBox(height: 8),
             _Card(
+              color: _creamCard(context),
               child: Column(
                 children: [
                   _InfoRow(
                     icon: Icons.info_outline,
                     label: 'Version',
-                    value: '1.0.0',
-                  ),
-                  const Divider(color: _creamBg, height: 1),
-                  _InfoRow(
-                    icon: Icons.flutter_dash_outlined,
-                    label: 'Framework',
-                    value: 'Flutter + GAS',
+                    value: '2.5.0',
+                    iconBg: _tanButton(context),
+                    iconColor: _primaryBlack(context),
+                    labelColor: _textMain(context),
+                    valueColor: _textMuted(context),
+                    onTap: null, // Read-only
                   ),
                 ],
               ),
@@ -142,8 +154,8 @@ class SettingsScreen extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: () => _confirmReset(context, cfg),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: _dangerRed,
-                  side: const BorderSide(color: _dangerRed),
+                  foregroundColor: _dangerRed(context),
+                  side: BorderSide(color: _dangerRed(context)),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
@@ -161,34 +173,108 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  void _editName(BuildContext context, AppConfigProvider cfg) {
+    final controller = TextEditingController(text: cfg.userName);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: _creamCard(context),
+        title: Text('Edit Name',
+            style: TextStyle(color: _textMain(context), fontWeight: FontWeight.bold)),
+        content: TextField(
+          controller: controller,
+          style: TextStyle(color: _textMain(context)),
+          decoration: InputDecoration(
+            hintText: 'Enter your name',
+            hintStyle: TextStyle(color: _textMuted(context)),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Cancel', style: TextStyle(color: _textMuted(context))),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack(context)),
+            onPressed: () {
+              Navigator.pop(ctx);
+              if (controller.text.trim().isNotEmpty) {
+                // Update with new name and existing url
+                cfg.setConfig(cfg.scriptUrl, controller.text.trim());
+              }
+            },
+            child: Text('Save', style: TextStyle(color: _creamBg(context))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _editUrl(BuildContext context, AppConfigProvider cfg) {
+    final controller = TextEditingController(text: cfg.scriptUrl);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: _creamCard(context),
+        title: Text('Edit Backend URL',
+            style: TextStyle(color: _textMain(context), fontWeight: FontWeight.bold)),
+        content: TextField(
+          controller: controller,
+          style: TextStyle(color: _textMain(context)),
+          decoration: InputDecoration(
+            hintText: 'https://script.google.com/...',
+            hintStyle: TextStyle(color: _textMuted(context)),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Cancel', style: TextStyle(color: _textMuted(context))),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack(context)),
+            onPressed: () {
+              Navigator.pop(ctx);
+              if (controller.text.trim().isNotEmpty) {
+                // Update with existing name and new url
+                cfg.setConfig(controller.text.trim(), cfg.userName);
+              }
+            },
+            child: Text('Save', style: TextStyle(color: _creamBg(context))),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _confirmReset(BuildContext context, AppConfigProvider cfg) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: _creamCard,
-        title: const Text('Reset Application?',
+        backgroundColor: _creamCard(context),
+        title: Text('Reset Application?',
             style:
-                TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
-        content: const Text(
+                TextStyle(color: _textMain(context), fontWeight: FontWeight.bold)),
+        content: Text(
           'This will clear all local data, preferences, and sign you out. '
           'Data saved to Google Sheets is not affected.',
-          style: TextStyle(color: _textMuted),
+          style: TextStyle(color: _textMuted(context)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child:
-                const Text('Cancel', style: TextStyle(color: _textMuted)),
+                Text('Cancel', style: TextStyle(color: _textMuted(context))),
           ),
           ElevatedButton(
             style:
-                ElevatedButton.styleFrom(backgroundColor: _dangerRed),
+                ElevatedButton.styleFrom(backgroundColor: _dangerRed(context)),
             onPressed: () {
               Navigator.pop(ctx);
               cfg.reset();
             },
             child:
-                const Text('Reset', style: TextStyle(color: _creamBg)),
+                Text('Reset', style: TextStyle(color: _creamBg(context))),
           ),
         ],
       ),
@@ -198,13 +284,14 @@ class SettingsScreen extends StatelessWidget {
 
 class _SectionHeader extends StatelessWidget {
   final String title;
-  const _SectionHeader({required this.title});
+  final Color color;
+  const _SectionHeader({required this.title, required this.color});
 
   @override
   Widget build(BuildContext context) => Text(
         title,
-        style: const TextStyle(
-          color: _textMuted,
+        style: TextStyle(
+          color: color,
           fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 1,
@@ -214,12 +301,13 @@ class _SectionHeader extends StatelessWidget {
 
 class _Card extends StatelessWidget {
   final Widget child;
-  const _Card({required this.child});
+  final Color color;
+  const _Card({required this.child, required this.color});
 
   @override
   Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(
-          color: _creamCard,
+          color: color,
           borderRadius: BorderRadius.circular(12),
         ),
         child: child,
@@ -230,44 +318,60 @@ class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+  final Color iconBg;
+  final Color iconColor;
+  final Color labelColor;
+  final Color valueColor;
+  final VoidCallback? onTap;
+
   const _InfoRow({
     required this.icon,
     required this.label,
     required this.value,
+    required this.iconBg,
+    required this.iconColor,
+    required this.labelColor,
+    required this.valueColor,
+    this.onTap,
   });
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: _tanButton,
-                borderRadius: BorderRadius.circular(8),
+  Widget build(BuildContext context) => InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: iconBg,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: iconColor, size: 20),
               ),
-              child: Icon(icon, color: _primaryBlack, size: 20),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label,
-                      style: const TextStyle(
-                        color: _textMain,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      )),
-                  Text(value,
-                      style: const TextStyle(
-                          color: _textMuted, fontSize: 14)),
-                ],
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(label,
+                        style: TextStyle(
+                          color: labelColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        )),
+                    Text(value,
+                        style: TextStyle(
+                            color: valueColor, fontSize: 14)),
+                  ],
+                ),
               ),
-            ),
-          ],
+              if (onTap != null)
+                Icon(Icons.edit_outlined, size: 16, color: valueColor),
+            ],
+          ),
         ),
       );
 }

@@ -1,7 +1,7 @@
 name: vital_flutter_app
-description: "VITAL Health Tracker — PRD Compliant Edition (Ultra-lightweight)."
-publish_to: 'none'
-version: 1.0.0+1
+description: "VITAL Health Tracker — (Ultra-lightweight)."
+publish_to: "none"
+version: 2.5.0+1
 
 environment:
   sdk: ^3.11.0

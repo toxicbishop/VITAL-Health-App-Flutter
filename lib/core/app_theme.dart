@@ -29,9 +29,9 @@ class AppColors {
   static const Color hrRed = Color(0xFFEF5350);
 
   // Dark mode
-  static const Color darkBg = Color(0xFF1A1A1A);
-  static const Color darkCard = Color(0xFF2C2C2C);
-  static const Color darkSurface = Color(0xFF242424);
+  static const Color darkBg = Color(0xFF1A1714);
+  static const Color darkCard = Color(0xFF2A2520);
+  static const Color darkSurface = Color(0xFF3D352C);
 }
 
 class AppTheme {
