@@ -54,7 +54,7 @@ void main() {
       }
 
       file.writeAsStringSync(content);
-      print('Processed ${file.path}');
+      // print('Processed ${file.path}');
     }
   }
 }
