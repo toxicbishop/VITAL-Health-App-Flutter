@@ -7,45 +7,25 @@ class ApiClient {
 
   ApiClient({required this.scriptUrl});
 
-  Future<bool> logWeight(WeightEntry entry) async {
+  Future<bool> _post(Map<String, dynamic> payload) async {
     try {
-      final response = await http.post(
-        Uri.parse(scriptUrl),
-        body: jsonEncode(entry.toJson()),
-      );
+      final response = await http
+          .post(
+            Uri.parse(scriptUrl),
+            body: jsonEncode(payload),
+          )
+          .timeout(const Duration(seconds: 15));
       return response.statusCode == 200 || response.statusCode == 302;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }
 
-  Future<bool> logBP(BPEntry entry) async {
-    try {
-      final response = await http.post(
-        Uri.parse(scriptUrl),
-        body: jsonEncode(entry.toJson()),
-      );
-      return response.statusCode == 200 || response.statusCode == 302;
-    } catch (e) {
-      return false;
-    }
-  }
+  Future<bool> saveProfile(ProfileEntry entry) => _post(entry.toJson());
 
-  Future<bool> logBoth(WeightEntry w, BPEntry bp) async {
-    try {
-      final response = await http.post(
-        Uri.parse(scriptUrl),
-        body: jsonEncode({
-          'type': 'both',
-          'weight': w.weight,
-          'systolic': bp.systolic,
-          'diastolic': bp.diastolic,
-          'date': w.date.toIso8601String(),
-        }),
-      );
-      return response.statusCode == 200 || response.statusCode == 302;
-    } catch (e) {
-      return false;
-    }
-  }
+  Future<bool> logWeight(WeightEntry entry) => _post(entry.toJson());
+
+  Future<bool> logBP(BPEntry entry) => _post(entry.toJson());
+
+  Future<bool> logBoth(BothEntry entry) => _post(entry.toJson());
 }

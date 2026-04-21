@@ -1,15 +1,14 @@
-class Profile {
+class ProfileEntry {
   final String name;
-  final int age;
+  final DateTime date;
 
-  Profile({required this.name, required this.age});
+  ProfileEntry({required this.name, required this.date});
 
-  factory Profile.fromJson(Map<String, dynamic> j) => Profile(
-        name: j['name'] as String,
-        age: j['age'] as int,
-      );
-
-  Map<String, dynamic> toJson() => {'name': name, 'age': age};
+  Map<String, dynamic> toJson() => {
+        'timestamp': date.toIso8601String(),
+        'type': 'PROFILE',
+        'name': name,
+      };
 }
 
 class WeightEntry {
@@ -19,9 +18,11 @@ class WeightEntry {
   WeightEntry({required this.weight, required this.date});
 
   Map<String, dynamic> toJson() => {
-        'type': 'weight',
+        'timestamp': date.toIso8601String(),
+        'type': 'WEIGHT',
         'weight': weight,
-        'date': date.toIso8601String(),
+        'bp_sys': null,
+        'bp_dia': null,
       };
 }
 
@@ -37,9 +38,32 @@ class BPEntry {
   });
 
   Map<String, dynamic> toJson() => {
-        'type': 'bp',
-        'systolic': systolic,
-        'diastolic': diastolic,
-        'date': date.toIso8601String(),
+        'timestamp': date.toIso8601String(),
+        'type': 'BP',
+        'weight': null,
+        'bp_sys': systolic,
+        'bp_dia': diastolic,
+      };
+}
+
+class BothEntry {
+  final double weight;
+  final int systolic;
+  final int diastolic;
+  final DateTime date;
+
+  BothEntry({
+    required this.weight,
+    required this.systolic,
+    required this.diastolic,
+    required this.date,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'timestamp': date.toIso8601String(),
+        'type': 'BOTH',
+        'weight': weight,
+        'bp_sys': systolic,
+        'bp_dia': diastolic,
       };
 }
