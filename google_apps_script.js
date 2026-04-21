@@ -6,19 +6,19 @@
  *   Who has access: Anyone
  *
  * Payload contracts:
- *   Logs (PRD §6.2):
- *     { "timestamp": "...", "type": "WEIGHT"|"BP"|"BOTH",
- *       "weight": 70.5|null, "bp_sys": 120|null, "bp_dia": 80|null }
+ *   Logs (PRD §6.2 + HR extension):
+ *     { "timestamp": "...", "type": "WEIGHT"|"BP"|"BOTH"|"HEART_RATE",
+ *       "weight": 70.5|null, "bp_sys": 120|null, "bp_dia": 80|null, "hr": 72|null }
  *
  *   Profile (API PRD AC3 — single active record, update if present):
  *     { "timestamp": "...", "type": "PROFILE", "name": "Mom" }
  *
  * Sheet tabs:
- *   Logs:    Date | Time | Type | Weight | BP Systolic | BP Diastolic
+ *   Logs:    Date | Time | Type | Weight | BP Systolic | BP Diastolic | Heart Rate
  *   Profile: Name | CreatedAt | UpdatedAt
  */
 
-var LOG_HEADERS = ["Date", "Time", "Type", "Weight", "BP Systolic", "BP Diastolic"];
+var LOG_HEADERS = ["Date", "Time", "Type", "Weight", "BP Systolic", "BP Diastolic", "Heart Rate"];
 var LOG_SHEET = "Logs";
 var PROFILE_HEADERS = ["Name", "CreatedAt", "UpdatedAt"];
 var PROFILE_SHEET = "Profile";
@@ -55,6 +55,7 @@ function _handleLog(data, ts) {
     _nullable(data.weight),
     _nullable(data.bp_sys),
     _nullable(data.bp_dia),
+    _nullable(data.hr),
   ]);
   return _json({ status: "success" });
 }
