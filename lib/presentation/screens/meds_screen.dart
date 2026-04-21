@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import '../../core/app_globals.dart';
 import 'package:provider/provider.dart';
 import '../../data/models.dart';
 import '../providers/health_data_provider.dart';
 
-const _creamBg = Color(0xFFF5F3EC);
-const _creamCard = Color(0xFFFAF8F2);
-const _tanButton = Color(0xFFDBD5C4);
-const _textMain = Color(0xFF0D0C0A);
-const _textMuted = Color(0xFF6B6659);
-const _primaryBlack = Color(0xFF000000);
-const _vitalSuccess = Color(0xFF27734A);
-
+Color get _creamBg => AppGlobals.creamBg;
+Color get _creamCard => AppGlobals.creamCard;
+Color get _tanButton => AppGlobals.tanButton;
+Color get _textMain => AppGlobals.textMain;
+Color get _textMuted => AppGlobals.textMuted;
+Color get _primaryBlack => AppGlobals.primaryBlack;
+Color get _vitalSuccess => AppGlobals.vitalSuccess;
 class MedsScreen extends StatelessWidget {
   const MedsScreen({super.key});
 
@@ -24,11 +24,11 @@ class MedsScreen extends StatelessWidget {
     return Container(
       color: _creamBg,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+            Text(
               'Medications',
               style: TextStyle(
                 fontSize: 28,
@@ -36,17 +36,17 @@ class MedsScreen extends StatelessWidget {
                 color: _textMain,
               ),
             ),
-            const Text(
+            Text(
               'Track your daily prescriptions',
               style: TextStyle(color: _textMuted, fontSize: 14),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             _ProgressCard(activeCount: activeCount),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Schedule',
                   style: TextStyle(
                     color: _textMain,
@@ -56,11 +56,11 @@ class MedsScreen extends StatelessWidget {
                 ),
                 Text(
                   '$activeCount ${activeCount == 1 ? "Med" : "Meds"}',
-                  style: const TextStyle(color: _textMuted, fontSize: 12),
+                  style: TextStyle(color: _textMuted, fontSize: 12),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             if (meds.isEmpty)
               const _EmptyState()
             else
@@ -72,11 +72,11 @@ class MedsScreen extends StatelessWidget {
                       onDelete: () =>
                           context.read<HealthDataProvider>().removeLog(meds[i]),
                     ),
-                    if (i != meds.length - 1) const SizedBox(height: 12),
+                    if (i != meds.length - 1) SizedBox(height: 12),
                   ],
                 ],
               ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             SizedBox(
               height: 54,
               child: ElevatedButton(
@@ -90,14 +90,14 @@ class MedsScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text(
+                child: Text(
                   '+ Add New Medication',
                   style:
                       TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
           ],
         ),
       ),
@@ -117,14 +117,14 @@ class _ProgressCard extends StatelessWidget {
         color: _creamCard,
         borderRadius: BorderRadius.circular(12),
       ),
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 "TODAY'S PROGRESS",
                 style: TextStyle(
                   color: _textMuted,
@@ -135,7 +135,7 @@ class _ProgressCard extends StatelessWidget {
               ),
               Text(
                 hasMeds ? '$activeCount active' : 'None set',
-                style: const TextStyle(
+                style: TextStyle(
                   color: _primaryBlack,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -143,7 +143,7 @@ class _ProgressCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
@@ -168,8 +168,8 @@ class _EmptyState extends StatelessWidget {
           color: _creamCard,
           borderRadius: BorderRadius.circular(12),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
-        child: const Column(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+        child: Column(
           children: [
             Icon(Icons.medication_outlined, color: _textMuted, size: 40),
             SizedBox(height: 12),
@@ -202,7 +202,7 @@ class _MedicationCard extends StatelessWidget {
           color: _creamCard,
           borderRadius: BorderRadius.circular(12),
         ),
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         child: Row(
           children: [
             Container(
@@ -213,16 +213,16 @@ class _MedicationCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               alignment: Alignment.center,
-              child: const Text('💊', style: TextStyle(fontSize: 22)),
+              child: Text('💊', style: TextStyle(fontSize: 22)),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     entry.value,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: _textMain,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -232,14 +232,14 @@ class _MedicationCard extends StatelessWidget {
                     entry.notes?.isNotEmpty == true
                         ? entry.notes!
                         : '1 dose',
-                    style: const TextStyle(color: _textMuted, fontSize: 14),
+                    style: TextStyle(color: _textMuted, fontSize: 14),
                   ),
                 ],
               ),
             ),
             IconButton(
               onPressed: () => _confirmDelete(context),
-              icon: const Icon(Icons.delete_outline,
+              icon: Icon(Icons.delete_outline,
                   color: Color(0xFFB00020), size: 20),
               tooltip: 'Delete',
             ),
@@ -252,16 +252,16 @@ class _MedicationCard extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: _creamCard,
-        title: const Text('Remove medication?',
+        title: Text('Remove medication?',
             style: TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
         content: Text(
           'Delete "${entry.value}" from your medication list?',
-          style: const TextStyle(color: _textMuted),
+          style: TextStyle(color: _textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(color: _textMuted)),
+            child: Text('Cancel', style: TextStyle(color: _textMuted)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -270,7 +270,7 @@ class _MedicationCard extends StatelessWidget {
               onDelete();
               Navigator.pop(ctx);
             },
-            child: const Text('Delete', style: TextStyle(color: _creamBg)),
+            child: Text('Delete', style: TextStyle(color: _creamBg)),
           ),
         ],
       ),
@@ -300,23 +300,23 @@ class _AddMedDialogState extends State<_AddMedDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
         backgroundColor: _creamCard,
-        title: const Text('Add Medication',
+        title: Text('Add Medication',
             style: TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _field(controller: _name, label: 'Medication Name'),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _field(controller: _dosage, label: 'Dosage (e.g. 1 tablet)'),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _field(controller: _time, label: 'Time (e.g. 8:00 AM)'),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: _textMuted)),
+            child: Text('Cancel', style: TextStyle(color: _textMuted)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack),
@@ -335,12 +335,12 @@ class _AddMedDialogState extends State<_AddMedDialog> {
                     notes: notes.isEmpty ? null : notes,
                   );
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 backgroundColor: _vitalSuccess,
                 content: Text('Medication added.'),
               ));
             },
-            child: const Text('Save', style: TextStyle(color: _creamBg)),
+            child: Text('Save', style: TextStyle(color: _creamBg)),
           ),
         ],
       );
@@ -354,15 +354,15 @@ Widget _field({
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: _textMuted),
+        labelStyle: TextStyle(color: _textMuted),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _tanButton),
+          borderSide: BorderSide(color: _tanButton),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _primaryBlack),
+          borderSide: BorderSide(color: _primaryBlack),
         ),
       ),
-      style: const TextStyle(color: _textMain),
+      style: TextStyle(color: _textMain),
     );

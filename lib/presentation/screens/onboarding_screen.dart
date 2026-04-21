@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/app_globals.dart';
 import 'package:provider/provider.dart';
 import '../../core/app_theme.dart';
 import '../providers/app_config_provider.dart';
@@ -77,26 +78,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       backgroundColor: AppColors.cream,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding: EdgeInsets.all(32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               _ProgressDots(step: _step, total: 3),
-              const Spacer(flex: 1),
+              Spacer(flex: 1),
               Expanded(
                 flex: 6,
                 child: SingleChildScrollView(child: _buildStep()),
               ),
               if (_error != null) ...[
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   _error!,
-                  style: const TextStyle(color: AppColors.error, fontSize: 14),
+                  style: TextStyle(color: AppColors.error, fontSize: 14),
                   textAlign: TextAlign.center,
                 ),
               ],
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               SizedBox(
                 height: 56,
                 child: ElevatedButton(
@@ -109,7 +110,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   onPressed: _loading ? null : _next,
                   child: _loading
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 24,
                           width: 24,
                           child: CircularProgressIndicator(
@@ -119,7 +120,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         )
                       : Text(
                           _step == 2 ? 'Log In' : 'Continue',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -129,12 +130,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               if (_step > 0)
                 TextButton(
                   onPressed: _loading ? null : _back,
-                  child: const Text(
+                  child: Text(
                     'Back',
                     style: TextStyle(color: AppColors.textSecondary),
                   ),
                 ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
             ],
           ),
         ),
@@ -168,7 +169,7 @@ class _ProgressDots extends StatelessWidget {
         final active = i <= step;
         final current = i == step;
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+          padding: EdgeInsets.symmetric(horizontal: 4),
           child: Container(
             width: current ? 12 : 8,
             height: current ? 12 : 8,
@@ -227,9 +228,9 @@ class _StepUrl extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Center(child: Text('🔗', style: TextStyle(fontSize: 64))),
-        const SizedBox(height: 24),
-        const Text(
+        Center(child: Text('🔗', style: TextStyle(fontSize: 64))),
+        SizedBox(height: 24),
+        Text(
           'Connect your Sheet',
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -238,13 +239,13 @@ class _StepUrl extends StatelessWidget {
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 8),
-        const Text(
+        SizedBox(height: 8),
+        Text(
           'Paste the Apps Script Web App URL',
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         TextField(
           controller: controller,
           decoration: const InputDecoration(
@@ -268,9 +269,9 @@ class _StepName extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Center(child: Text('👤', style: TextStyle(fontSize: 64))),
-        const SizedBox(height: 24),
-        const Text(
+        Center(child: Text('👤', style: TextStyle(fontSize: 64))),
+        SizedBox(height: 24),
+        Text(
           "What's your name?",
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -279,13 +280,13 @@ class _StepName extends StatelessWidget {
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 8),
-        const Text(
+        SizedBox(height: 8),
+        Text(
           'Saved to the Profile tab of your Google Sheet',
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         TextField(
           controller: controller,
           decoration: const InputDecoration(labelText: 'Your name'),

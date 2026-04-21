@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/app_globals.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../data/models.dart';
@@ -12,14 +13,13 @@ import 'trends_screen.dart';
 // ---------------------------------------------------------------------------
 // Palette — mirrors VITAL-Health-App-Kotlin `Color.kt` 1:1 (light mode).
 // ---------------------------------------------------------------------------
-const _creamBg = Color(0xFFF5F3EC);
-const _creamCard = Color(0xFFFAF8F2);
-const _tanButton = Color(0xFFDBD5C4);
-const _textMain = Color(0xFF0D0C0A);
-const _textMuted = Color(0xFF6B6659);
-const _primaryBlack = Color(0xFF000000);
-const _vitalSuccess = Color(0xFF27734A);
-
+Color get _creamBg => AppGlobals.creamBg;
+Color get _creamCard => AppGlobals.creamCard;
+Color get _tanButton => AppGlobals.tanButton;
+Color get _textMain => AppGlobals.textMain;
+Color get _textMuted => AppGlobals.textMuted;
+Color get _primaryBlack => AppGlobals.primaryBlack;
+Color get _vitalSuccess => AppGlobals.vitalSuccess;
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -46,7 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: _creamCard,
-        title: const Text('Log Vitals', style: TextStyle(color: _textMain)),
+        title: Text('Log Vitals', style: TextStyle(color: _textMain)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -58,7 +58,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _showAddLog(initialType: 'WEIGHT', both: false);
               },
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _dialogButton(
               'Log BP Only',
               fill: _tanButton,
@@ -67,7 +67,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _showAddLog(initialType: 'BLOOD_PRESSURE', both: false);
               },
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _dialogButton(
               'Log Both',
               fill: _primaryBlack,
@@ -83,7 +83,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Close', style: TextStyle(color: _textMuted)),
+            child: Text('Close', style: TextStyle(color: _textMuted)),
           ),
         ],
       ),
@@ -240,7 +240,7 @@ class _HomeTab extends StatelessWidget {
     final nextAppointment = _latest(logs, 'APPOINTMENT');
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -251,7 +251,7 @@ class _HomeTab extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Vital Dashboard',
                       style: TextStyle(
                         fontSize: 28,
@@ -261,19 +261,19 @@ class _HomeTab extends StatelessWidget {
                     ),
                     Text(
                       todayStr,
-                      style: const TextStyle(color: _textMuted, fontSize: 14),
+                      style: TextStyle(color: _textMuted, fontSize: 14),
                     ),
                   ],
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.exit_to_app, color: _textMuted),
+                icon: Icon(Icons.exit_to_app, color: _textMuted),
                 onPressed: onLogout,
                 tooltip: 'Logout',
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           if (elevatedBpDays >= 2 && !dismissedAlerts.contains('bp')) ...[
             _alertCard(
               emoji: '⚠️',
@@ -285,7 +285,7 @@ class _HomeTab extends StatelessWidget {
               subtitleColor: const Color(0xFFFFAAAA),
               onDismiss: () => onDismissAlert('bp'),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
           ],
           Row(
             children: [
@@ -297,7 +297,7 @@ class _HomeTab extends StatelessWidget {
                   onLog: onLogVitalsTile,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: _MetricCard(
                   title: 'BP',
@@ -306,7 +306,7 @@ class _HomeTab extends StatelessWidget {
                   onLog: onLogBpTile,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: _MetricCard(
                   title: 'HR',
@@ -317,21 +317,21 @@ class _HomeTab extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _Section(
             title: 'WELL-BEING',
             child: _CardContainer(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
                 child: Row(
                   children: [
                     _iconTile(Icons.sentiment_satisfied_alt_outlined),
-                    const SizedBox(width: 16),
+                    SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Mood',
+                          Text('Mood',
                               style: TextStyle(
                                   color: _textMain,
                                   fontWeight: FontWeight.w600,
@@ -340,7 +340,7 @@ class _HomeTab extends StatelessWidget {
                             todayMood != null
                                 ? 'Today: ${todayMood.value}'
                                 : 'No mood logged today',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: _textMuted, fontSize: 14),
                           ),
                         ],
@@ -352,31 +352,31 @@ class _HomeTab extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _Section(
             title: 'MEDICATION',
             child: _CardContainer(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
                         _iconTile(Icons.shopping_bag_outlined),
-                        const SizedBox(width: 16),
+                        SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
                                 children: [
-                                  const Text('Active Prescriptions',
+                                  Text('Active Prescriptions',
                                       style: TextStyle(
                                           color: _textMain,
                                           fontWeight: FontWeight.w600,
                                           fontSize: 16)),
-                                  const SizedBox(width: 8),
+                                  SizedBox(width: 8),
                                   _activeBadge(logs),
                                 ],
                               ),
@@ -384,7 +384,7 @@ class _HomeTab extends StatelessWidget {
                                 latestMed != null
                                     ? '${latestMed.value} • ${latestMed.notes ?? ""}'
                                     : 'Prenatal Vitamin • 8:00 AM',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     color: _textMuted, fontSize: 14),
                               ),
                             ],
@@ -392,7 +392,7 @@ class _HomeTab extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     Row(
                       children: [
                         Expanded(
@@ -403,7 +403,7 @@ class _HomeTab extends StatelessWidget {
                             bold: true,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         _solidBtn('+ Add',
                             onTap: onAddMed, fill: _tanButton, fg: _textMain),
                       ],
@@ -413,12 +413,12 @@ class _HomeTab extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _Section(
             title: 'CLINICAL REPORTS',
             child: _CardContainer(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
                 child: Column(
                   children: [
                     _listRow(
@@ -426,7 +426,7 @@ class _HomeTab extends StatelessWidget {
                       label: 'Monthly Health Summary',
                       onTap: onMonthlySummary,
                     ),
-                    const Divider(color: _creamBg),
+                    Divider(color: _creamBg),
                     _listRow(
                       icon: Icons.picture_as_pdf_outlined,
                       label: 'Export Clinical Data (PDF)',
@@ -437,21 +437,21 @@ class _HomeTab extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _Section(
             title: 'APPOINTMENTS',
             child: _CardContainer(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
                 child: Row(
                   children: [
                     _iconTile(Icons.calendar_today),
-                    const SizedBox(width: 16),
+                    SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Doctor Visits',
+                          Text('Doctor Visits',
                               style: TextStyle(
                                   color: _textMain,
                                   fontWeight: FontWeight.w600,
@@ -460,7 +460,7 @@ class _HomeTab extends StatelessWidget {
                             nextAppointment != null
                                 ? '${nextAppointment.value} • ${nextAppointment.notes ?? ""}'
                                 : 'No upcoming visits',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: _textMuted, fontSize: 14),
                           ),
                         ],
@@ -472,7 +472,7 @@ class _HomeTab extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
         ],
       ),
     );
@@ -492,11 +492,11 @@ class _HomeTab extends StatelessWidget {
           color: bg,
           borderRadius: BorderRadius.circular(12),
         ),
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         child: Row(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 24)),
-            const SizedBox(width: 12),
+            Text(emoji, style: TextStyle(fontSize: 24)),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -531,14 +531,14 @@ class _HomeTab extends StatelessWidget {
   Widget _activeBadge(List<LogEntry> logs) {
     final medCount = logs.where((l) => l.logType == 'MEDICATION').length;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: _creamBg,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
         '${medCount > 0 ? medCount : 1} Active',
-        style: const TextStyle(color: _textMuted, fontSize: 10),
+        style: TextStyle(color: _textMuted, fontSize: 10),
       ),
     );
   }
@@ -546,19 +546,19 @@ class _HomeTab extends StatelessWidget {
   Widget _solidBtn(
     String label, {
     VoidCallback? onTap,
-    Color fill = _primaryBlack,
-    Color fg = _creamBg,
+    Color? fill,
+    Color? fg,
     bool bold = false,
   }) {
     return ElevatedButton(
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
-        backgroundColor: fill,
-        foregroundColor: fg,
-        disabledBackgroundColor: fill,
-        disabledForegroundColor: fg,
+        backgroundColor: fill ?? _primaryBlack,
+        foregroundColor: fg ?? _creamBg,
+        disabledBackgroundColor: fill ?? _primaryBlack,
+        disabledForegroundColor: fg ?? _creamBg,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       ),
       child: Text(
         label,
@@ -575,15 +575,15 @@ class _HomeTab extends StatelessWidget {
       InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: EdgeInsets.symmetric(vertical: 8),
           child: Row(
             children: [
               Icon(icon, color: _textMuted),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(
                   child:
-                      Text(label, style: const TextStyle(color: _textMain))),
-              const Icon(Icons.keyboard_arrow_right, color: _textMuted),
+                      Text(label, style: TextStyle(color: _textMain))),
+              Icon(Icons.keyboard_arrow_right, color: _textMuted),
             ],
           ),
         ),
@@ -604,10 +604,10 @@ class _Section extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 8),
+          padding: EdgeInsets.only(bottom: 8),
           child: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: _textMuted,
               fontSize: 12,
               fontWeight: FontWeight.bold,
@@ -650,7 +650,7 @@ class _MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _CardContainer(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -660,26 +660,26 @@ class _MetricCard extends StatelessWidget {
                 children: [
                   Icon(icon, color: _primaryBlack),
                   Text(title,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: _textMuted,
                           fontSize: 12,
                           fontWeight: FontWeight.bold)),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(value,
-                  style: const TextStyle(color: _textMain, fontSize: 14)),
-              const SizedBox(height: 16),
+                  style: TextStyle(color: _textMain, fontSize: 14)),
+              SizedBox(height: 16),
               OutlinedButton(
                 onPressed: onLog,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: _textMain,
-                  side: const BorderSide(color: _tanButton),
+                  side: BorderSide(color: _tanButton),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                   minimumSize: const Size.fromHeight(36),
                 ),
-                child: const Text('Log Entry',
+                child: Text('Log Entry',
                     style: TextStyle(fontSize: 12)),
               ),
             ],
@@ -699,7 +699,7 @@ class _BottomNav extends StatelessWidget {
         onDestinationSelected: onChanged,
         backgroundColor: _creamCard,
         indicatorColor: _tanButton,
-        destinations: const [
+        destinations: [
           NavigationDestination(
               icon: Icon(Icons.home, color: _textMuted),
               selectedIcon: Icon(Icons.home, color: _primaryBlack),
@@ -795,7 +795,7 @@ class _AddLogDialogState extends State<_AddLogDialog> {
       backgroundColor: _creamCard,
       title: Text(
         widget.both ? 'Log Both (Weight & BP)' : 'Add Health Log',
-        style: const TextStyle(color: _textMain),
+        style: TextStyle(color: _textMain),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -803,10 +803,10 @@ class _AddLogDialogState extends State<_AddLogDialog> {
         children: [
           if (!widget.both)
             Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: EdgeInsets.only(bottom: 8),
               child: Text(
                 'Type: ${widget.initialType.replaceAll('_', ' ')}',
-                style: const TextStyle(color: _textMuted),
+                style: TextStyle(color: _textMuted),
               ),
             ),
           if (showWeight)
@@ -820,7 +820,7 @@ class _AddLogDialogState extends State<_AddLogDialog> {
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
           if (showBp) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
@@ -834,7 +834,7 @@ class _AddLogDialogState extends State<_AddLogDialog> {
                     keyboardType: TextInputType.number,
                   ),
                 ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   child: Text('/',
                       style: TextStyle(
@@ -856,25 +856,25 @@ class _AddLogDialogState extends State<_AddLogDialog> {
               ],
             ),
           ],
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _field(controller: _notes, label: 'Notes (optional)'),
         ],
       ),
       actions: [
         TextButton(
           onPressed: _saving ? null : () => Navigator.pop(context),
-          child: const Text('Cancel', style: TextStyle(color: _textMuted)),
+          child: Text('Cancel', style: TextStyle(color: _textMuted)),
         ),
         TextButton(
           onPressed: _saving ? null : _save,
           child: _saving
-              ? const SizedBox(
+              ? SizedBox(
                   height: 18,
                   width: 18,
                   child: CircularProgressIndicator(
                       strokeWidth: 2, color: _primaryBlack),
                 )
-              : const Text('Save',
+              : Text('Save',
                   style: TextStyle(
                       color: _primaryBlack, fontWeight: FontWeight.bold)),
         ),
@@ -910,7 +910,7 @@ class _MoodLogDialogState extends State<_MoodLogDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: _creamCard,
-      title: const Text('How are you feeling?',
+      title: Text('How are you feeling?',
           style: TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -922,7 +922,7 @@ class _MoodLogDialogState extends State<_MoodLogDialog> {
               final selected = _selected == m;
               return Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: EdgeInsets.symmetric(horizontal: 4),
                   child: SizedBox(
                     height: 56,
                     child: ElevatedButton(
@@ -932,10 +932,10 @@ class _MoodLogDialogState extends State<_MoodLogDialog> {
                         foregroundColor: selected ? _creamBg : _textMain,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.all(4),
+                        padding: EdgeInsets.all(4),
                       ),
                       child: Text(emoji,
-                          style: const TextStyle(fontSize: 20)),
+                          style: TextStyle(fontSize: 20)),
                     ),
                   ),
                 ),
@@ -943,18 +943,18 @@ class _MoodLogDialogState extends State<_MoodLogDialog> {
             }).toList(),
           ),
           if (_selected.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text('Selected: $_selected',
-                style: const TextStyle(color: _textMuted, fontSize: 14)),
+                style: TextStyle(color: _textMuted, fontSize: 14)),
           ],
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _field(controller: _notes, label: 'Notes (optional)'),
         ],
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel', style: TextStyle(color: _textMuted)),
+          child: Text('Cancel', style: TextStyle(color: _textMuted)),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack),
@@ -971,7 +971,7 @@ class _MoodLogDialogState extends State<_MoodLogDialog> {
                       );
                   Navigator.pop(context);
                 },
-          child: const Text('Save', style: TextStyle(color: _creamBg)),
+          child: Text('Save', style: TextStyle(color: _creamBg)),
         ),
       ],
     );
@@ -1000,23 +1000,23 @@ class _AddMedicationDialogState extends State<_AddMedicationDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
         backgroundColor: _creamCard,
-        title: const Text('Add Medication',
+        title: Text('Add Medication',
             style: TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _field(controller: _name, label: 'Medication Name'),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _field(controller: _dosage, label: 'Dosage (e.g. 1 tablet)'),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _field(controller: _time, label: 'Time (e.g. 8:00 AM)'),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: _textMuted)),
+            child: Text('Cancel', style: TextStyle(color: _textMuted)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack),
@@ -1030,7 +1030,7 @@ class _AddMedicationDialogState extends State<_AddMedicationDialog> {
                   );
               Navigator.pop(context);
             },
-            child: const Text('Save', style: TextStyle(color: _creamBg)),
+            child: Text('Save', style: TextStyle(color: _creamBg)),
           ),
         ],
       );
@@ -1073,7 +1073,7 @@ class _HeartRateDialogState extends State<_HeartRateDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
         backgroundColor: _creamCard,
-        title: const Text('Log Heart Rate',
+        title: Text('Log Heart Rate',
             style: TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1088,26 +1088,26 @@ class _HeartRateDialogState extends State<_HeartRateDialog> {
                 LengthLimitingTextInputFormatter(3),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _field(controller: _notes, label: 'Notes (optional)'),
           ],
         ),
         actions: [
           TextButton(
             onPressed: _saving ? null : () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: _textMuted)),
+            child: Text('Cancel', style: TextStyle(color: _textMuted)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack),
             onPressed: _saving ? null : _save,
             child: _saving
-                ? const SizedBox(
+                ? SizedBox(
                     height: 18,
                     width: 18,
                     child: CircularProgressIndicator(
                         strokeWidth: 2, color: _creamBg),
                   )
-                : const Text('Save', style: TextStyle(color: _creamBg)),
+                : Text('Save', style: TextStyle(color: _creamBg)),
           ),
         ],
       );
@@ -1135,23 +1135,23 @@ class _AppointmentDialogState extends State<_AppointmentDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
         backgroundColor: _creamCard,
-        title: const Text('Add Appointment',
+        title: Text('Add Appointment',
             style: TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _field(controller: _doctor, label: 'Doctor Name'),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _field(controller: _date, label: 'Date (e.g. Mar 25, 2026)'),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _field(controller: _notes, label: 'Notes (optional)'),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: _textMuted)),
+            child: Text('Cancel', style: TextStyle(color: _textMuted)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack),
@@ -1166,7 +1166,7 @@ class _AppointmentDialogState extends State<_AppointmentDialog> {
                   );
               Navigator.pop(context);
             },
-            child: const Text('Save', style: TextStyle(color: _creamBg)),
+            child: Text('Save', style: TextStyle(color: _creamBg)),
           ),
         ],
       );
@@ -1223,7 +1223,7 @@ class _MonthlySummaryDialog extends StatelessWidget {
 
     return AlertDialog(
       backgroundColor: _creamCard,
-      title: const Text('Monthly Health Summary',
+      title: Text('Monthly Health Summary',
           style: TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
       content: SingleChildScrollView(
         child: Column(
@@ -1232,10 +1232,10 @@ class _MonthlySummaryDialog extends StatelessWidget {
             _summaryRow('Weight Entries', '${weightLogs.length}'),
             _summaryRow('Avg Weight', '$avgWeight kg'),
             _summaryRow('Weight Range', '$minWeight – $maxWeight kg'),
-            const Divider(color: _tanButton),
+            Divider(color: _tanButton),
             _summaryRow('BP Entries', '${bpLogs.length}'),
             _summaryRow('Avg BP', '$avgBp mmHg'),
-            const Divider(color: _tanButton),
+            Divider(color: _tanButton),
             _summaryRow('Mood Entries', '${moodLogs.length}'),
             ...moodGroups.entries.map(
               (e) => _summaryRow('  ${e.key}', '${e.value}x'),
@@ -1246,7 +1246,7 @@ class _MonthlySummaryDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Close', style: TextStyle(color: _primaryBlack)),
+          child: Text('Close', style: TextStyle(color: _primaryBlack)),
         ),
       ],
     );
@@ -1257,14 +1257,14 @@ class _MonthlySummaryDialog extends StatelessWidget {
 // Helpers
 // ---------------------------------------------------------------------------
 Widget _summaryRow(String label, String value) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label,
-              style: const TextStyle(color: _textMuted, fontSize: 14)),
+              style: TextStyle(color: _textMuted, fontSize: 14)),
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                   color: _textMain,
                   fontWeight: FontWeight.w600,
                   fontSize: 14)),
@@ -1284,24 +1284,26 @@ Widget _field({
       inputFormatters: inputFormatters,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: _textMuted),
+        labelStyle: TextStyle(color: _textMuted),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _tanButton),
+          borderSide: BorderSide(color: _tanButton),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _primaryBlack),
+          borderSide: BorderSide(color: _primaryBlack),
         ),
       ),
-      style: const TextStyle(color: _textMain),
+      style: TextStyle(color: _textMain),
     );
 
 Widget _dialogButton(
   String label, {
   required VoidCallback onTap,
-  Color fill = _tanButton,
-  Color fg = _textMain,
+  Color? fill,
+
+  Color? fg,
+
   bool bold = false,
 }) =>
     SizedBox(
@@ -1311,7 +1313,7 @@ Widget _dialogButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: fill,
           foregroundColor: fg,
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: 12),
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8)),
         ),

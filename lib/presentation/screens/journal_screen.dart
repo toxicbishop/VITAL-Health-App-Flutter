@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import '../../core/app_globals.dart';
 import 'package:provider/provider.dart';
 import '../providers/journal_provider.dart';
 
-const _creamBg = Color(0xFFF5F3EC);
-const _creamCard = Color(0xFFFAF8F2);
-const _tanButton = Color(0xFFDBD5C4);
-const _textMain = Color(0xFF0D0C0A);
-const _textMuted = Color(0xFF6B6659);
-const _primaryBlack = Color(0xFF000000);
-const _vitalSuccess = Color(0xFF27734A);
-const _dangerRed = Color(0xFFB00020);
-
+Color get _creamBg => AppGlobals.creamBg;
+Color get _creamCard => AppGlobals.creamCard;
+Color get _tanButton => AppGlobals.tanButton;
+Color get _textMain => AppGlobals.textMain;
+Color get _textMuted => AppGlobals.textMuted;
+Color get _primaryBlack => AppGlobals.primaryBlack;
+Color get _vitalSuccess => AppGlobals.vitalSuccess;
+Color get _dangerRed => AppGlobals.dangerRed;
 class JournalScreen extends StatelessWidget {
   const JournalScreen({super.key});
 
@@ -24,14 +24,14 @@ class JournalScreen extends StatelessWidget {
         backgroundColor: _primaryBlack,
         foregroundColor: _creamBg,
         onPressed: () => _openEditor(context),
-        child: const Icon(Icons.add),
+        child: Icon(Icons.add),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 24, 16, 96),
+        padding: EdgeInsets.fromLTRB(16, 24, 16, 96),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+            Text(
               'Journal',
               style: TextStyle(
                 fontSize: 28,
@@ -39,11 +39,11 @@ class JournalScreen extends StatelessWidget {
                 color: _textMain,
               ),
             ),
-            const Text(
+            Text(
               'Personal health observations',
               style: TextStyle(color: _textMuted, fontSize: 14),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             if (entries.isEmpty)
               const _EmptyState()
             else
@@ -51,7 +51,7 @@ class JournalScreen extends StatelessWidget {
                 children: [
                   for (var i = 0; i < entries.length; i++) ...[
                     _EntryCard(entry: entries[i]),
-                    if (i != entries.length - 1) const SizedBox(height: 12),
+                    if (i != entries.length - 1) SizedBox(height: 12),
                   ],
                 ],
               ),
@@ -78,8 +78,8 @@ class _EmptyState extends StatelessWidget {
           color: _creamCard,
           borderRadius: BorderRadius.circular(12),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
-        child: const Column(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+        child: Column(
           children: [
             Text('📝', style: TextStyle(fontSize: 48)),
             SizedBox(height: 12),
@@ -121,7 +121,7 @@ class _EntryCard extends StatelessWidget {
           builder: (_) => _EntryEditorDialog(existing: entry),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -136,17 +136,17 @@ class _EntryCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     alignment: Alignment.center,
-                    child: const Icon(Icons.edit_outlined,
+                    child: Icon(Icons.edit_outlined,
                         color: _primaryBlack, size: 20),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           entry.title.isEmpty ? 'Untitled' : entry.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: _textMain,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -154,12 +154,12 @@ class _EntryCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           edited
                               ? 'Updated ${_fmt(entry.updatedAt)}'
                               : _fmt(entry.createdAt),
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: _textMuted, fontSize: 12),
                         ),
                       ],
@@ -167,17 +167,17 @@ class _EntryCard extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () => _confirmDelete(context),
-                    icon: const Icon(Icons.delete_outline,
+                    icon: Icon(Icons.delete_outline,
                         color: _dangerRed, size: 20),
                     tooltip: 'Delete',
                   ),
                 ],
               ),
               if (entry.body.isNotEmpty) ...[
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Text(
                   entry.body,
-                  style: const TextStyle(color: _textMain, fontSize: 14),
+                  style: TextStyle(color: _textMain, fontSize: 14),
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -194,17 +194,17 @@ class _EntryCard extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: _creamCard,
-        title: const Text('Delete entry?',
+        title: Text('Delete entry?',
             style:
                 TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
         content: Text(
           'Delete "${entry.title.isEmpty ? 'Untitled' : entry.title}" permanently?',
-          style: const TextStyle(color: _textMuted),
+          style: TextStyle(color: _textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(color: _textMuted)),
+            child: Text('Cancel', style: TextStyle(color: _textMuted)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: _dangerRed),
@@ -212,7 +212,7 @@ class _EntryCard extends StatelessWidget {
               ctx.read<JournalProvider>().remove(entry.id);
               Navigator.pop(ctx);
             },
-            child: const Text('Delete', style: TextStyle(color: _creamBg)),
+            child: Text('Delete', style: TextStyle(color: _creamBg)),
           ),
         ],
       ),
@@ -286,14 +286,14 @@ class _EntryEditorDialogState extends State<_EntryEditorDialog> {
       backgroundColor: _creamCard,
       title: Text(editing ? 'Edit Entry' : 'New Entry',
           style:
-              const TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
+              TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
       content: SizedBox(
         width: 420,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             _field(controller: _title, label: 'Title'),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _field(
               controller: _body,
               label: 'Write your observation…',
@@ -305,20 +305,20 @@ class _EntryEditorDialogState extends State<_EntryEditorDialog> {
       actions: [
         TextButton(
           onPressed: _saving ? null : () => Navigator.pop(context),
-          child: const Text('Cancel', style: TextStyle(color: _textMuted)),
+          child: Text('Cancel', style: TextStyle(color: _textMuted)),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack),
           onPressed: _saving ? null : _save,
           child: _saving
-              ? const SizedBox(
+              ? SizedBox(
                   height: 18,
                   width: 18,
                   child: CircularProgressIndicator(
                       strokeWidth: 2, color: _creamBg),
                 )
               : Text(editing ? 'Update' : 'Save',
-                  style: const TextStyle(color: _creamBg)),
+                  style: TextStyle(color: _creamBg)),
         ),
       ],
     );
@@ -335,16 +335,16 @@ Widget _field({
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: _textMuted),
+        labelStyle: TextStyle(color: _textMuted),
         alignLabelWithHint: maxLines > 1,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _tanButton),
+          borderSide: BorderSide(color: _tanButton),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _primaryBlack),
+          borderSide: BorderSide(color: _primaryBlack),
         ),
       ),
-      style: const TextStyle(color: _textMain),
+      style: TextStyle(color: _textMain),
     );
