@@ -1,3 +1,23 @@
+/// Lightweight in-app log record. Mirrors the Kotlin reference
+/// `HealthLogEntity`. Weight/BP/Both are also persisted server-side
+/// via [ApiClient]; other log types (MOOD, MEDICATION, HEART_RATE,
+/// APPOINTMENT, NOTE) are currently local-only — out of PRD scope.
+class LogEntry {
+  final String logType;
+  final String value;
+  final String unit;
+  final String? notes;
+  final DateTime timestamp;
+
+  LogEntry({
+    required this.logType,
+    required this.value,
+    required this.unit,
+    this.notes,
+    required this.timestamp,
+  });
+}
+
 class ProfileEntry {
   final String name;
   final DateTime date;
@@ -23,6 +43,7 @@ class WeightEntry {
         'weight': weight,
         'bp_sys': null,
         'bp_dia': null,
+        'hr': null,
       };
 }
 
@@ -43,6 +64,7 @@ class BPEntry {
         'weight': null,
         'bp_sys': systolic,
         'bp_dia': diastolic,
+        'hr': null,
       };
 }
 
@@ -65,5 +87,22 @@ class BothEntry {
         'weight': weight,
         'bp_sys': systolic,
         'bp_dia': diastolic,
+        'hr': null,
+      };
+}
+
+class HeartRateEntry {
+  final int bpm;
+  final DateTime date;
+
+  HeartRateEntry({required this.bpm, required this.date});
+
+  Map<String, dynamic> toJson() => {
+        'timestamp': date.toIso8601String(),
+        'type': 'HEART_RATE',
+        'weight': null,
+        'bp_sys': null,
+        'bp_dia': null,
+        'hr': bpm,
       };
 }
