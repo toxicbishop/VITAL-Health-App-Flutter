@@ -11,8 +11,10 @@ import 'core/app_globals.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final config = AppConfigProvider();
-  final journal = JournalProvider();
-  await Future.wait([config.load(), journal.load()]);
+  await config.load();
+  
+  final journal = JournalProvider(() => config.client);
+  await journal.load();
 
   runApp(
     MultiProvider(

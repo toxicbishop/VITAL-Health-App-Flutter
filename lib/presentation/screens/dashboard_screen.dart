@@ -9,6 +9,7 @@ import 'journal_screen.dart';
 import 'meds_screen.dart';
 import 'settings_screen.dart';
 import 'trends_screen.dart';
+import '../../core/clinical_report_service.dart';
 
 // ---------------------------------------------------------------------------
 // Palette — mirrors VITAL-Health-App-Kotlin `Color.kt` 1:1 (light mode).
@@ -163,10 +164,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           onAddMed: _showAddMedDialog,
           onAddAppointment: _showAppointmentDialog,
           onMonthlySummary: () => _showMonthlySummary(logs),
-          onExportPdf: () {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('PDF export not yet implemented.'),
-            ));
+          onExportPdf: () async {
+            await ClinicalReportService.exportToPdf(logs, userName);
           },
         );
     }
@@ -699,6 +698,7 @@ class _BottomNav extends StatelessWidget {
         onDestinationSelected: onChanged,
         backgroundColor: _creamCard,
         indicatorColor: _tanButton,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         destinations: [
           NavigationDestination(
               icon: Icon(Icons.home, color: _textMuted),
