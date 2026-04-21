@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import '../../core/app_globals.dart';
 import 'package:provider/provider.dart';
 import '../../data/models.dart';
 import '../providers/health_data_provider.dart';
 
-const _creamBg = Color(0xFFF5F3EC);
-const _creamCard = Color(0xFFFAF8F2);
-const _tanButton = Color(0xFFDBD5C4);
-const _textMain = Color(0xFF0D0C0A);
-const _textMuted = Color(0xFF6B6659);
-const _primaryBlack = Color(0xFF000000);
-const _vitalSuccess = Color(0xFF27734A);
+Color get _creamBg => AppGlobals.creamBg;
+Color get _creamCard => AppGlobals.creamCard;
+Color get _tanButton => AppGlobals.tanButton;
+Color get _textMain => AppGlobals.textMain;
+Color get _textMuted => AppGlobals.textMuted;
+Color get _primaryBlack => AppGlobals.primaryBlack;
+Color get _vitalSuccess => AppGlobals.vitalSuccess;
 const _vitalError = Color(0xFFB00020);
 const _hrPink = Color(0xFFEC4899);
 
@@ -51,7 +52,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
       cancelText: 'Clear',
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.light(
+          colorScheme: ColorScheme.light(
             primary: _primaryBlack,
             onPrimary: _creamBg,
             surface: _creamCard,
@@ -61,11 +62,11 @@ class _TrendsScreenState extends State<TrendsScreen> {
             backgroundColor: _creamCard,
             headerBackgroundColor: _creamCard,
             headerForegroundColor: _textMain,
-            weekdayStyle: const TextStyle(color: _textMuted),
-            dayStyle: const TextStyle(color: _textMain),
+            weekdayStyle: TextStyle(color: _textMuted),
+            dayStyle: TextStyle(color: _textMain),
             todayForegroundColor:
                 WidgetStateProperty.all<Color>(_primaryBlack),
-            todayBorder: const BorderSide(color: _primaryBlack),
+            todayBorder: BorderSide(color: _primaryBlack),
             dayForegroundColor: WidgetStateProperty.resolveWith(
                 (s) => s.contains(WidgetState.selected)
                     ? _creamBg
@@ -191,7 +192,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
     return Container(
       color: _creamBg,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -202,14 +203,14 @@ class _TrendsScreenState extends State<TrendsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Health Trends',
+                      Text('Health Trends',
                           style: TextStyle(
                             color: _textMain,
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
                           )),
                       Text(subtitle,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: _textMuted, fontSize: 14)),
                     ],
                   ),
@@ -225,13 +226,13 @@ class _TrendsScreenState extends State<TrendsScreen> {
                       border: Border.all(color: _tanButton),
                     ),
                     alignment: Alignment.center,
-                    child: const Icon(Icons.calendar_today,
+                    child: Icon(Icons.calendar_today,
                         color: _primaryBlack, size: 20),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             _SegmentedPeriod(
               value: _period,
               onChanged: (p) => setState(() {
@@ -239,26 +240,26 @@ class _TrendsScreenState extends State<TrendsScreen> {
                 _customFrom = null;
               }),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             _WeightTrendCard(
               avg: avgWeight,
               delta: weightDelta,
               weights: weights,
               count: weightLogs.length,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             _VitalRowCard(
               tileColor: _primaryBlack,
-              tileIcon: const Icon(Icons.favorite_border, color: _creamBg),
+              tileIcon: Icon(Icons.favorite_border, color: _creamBg),
               title: 'Blood Pressure',
               subtitle: 'Average: $avgBpStr',
               statusLabel: bpStatus,
               statusColor: bpStatusColor,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             _VitalRowCard(
               tileColor: _hrPink,
-              tileIcon: const Text('🫀', style: TextStyle(fontSize: 22)),
+              tileIcon: Text('🫀', style: TextStyle(fontSize: 22)),
               title: 'Heart Rate',
               subtitle: avgHr != null ? 'Avg: $avgHr bpm' : '-- bpm',
               extraLine: (minHr != null && maxHr != null)
@@ -267,14 +268,14 @@ class _TrendsScreenState extends State<TrendsScreen> {
               statusLabel: hrStatus,
               statusColor: hrStatusColor,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             _InsightsSection(
               bpPairs: bpPairs,
               bpLogs: bpLogs,
               weights: weights,
               hrValues: hrValues,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
           ],
         ),
       ),
@@ -314,7 +315,7 @@ class _SegmentedPeriod extends StatelessWidget {
                   color: selected ? _primaryBlack : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: EdgeInsets.symmetric(vertical: 12),
                 alignment: Alignment.center,
                 child: Text(
                   _label(p),
@@ -366,7 +367,7 @@ class _WeightTrendCard extends StatelessWidget {
         color: _creamCard,
         borderRadius: BorderRadius.circular(12),
       ),
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -378,25 +379,25 @@ class _WeightTrendCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('WEIGHT TREND',
+                    Text('WEIGHT TREND',
                         style: TextStyle(
                           color: _textMuted,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1,
                         )),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text('$avg kg',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: _textMain,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             )),
-                        const SizedBox(width: 8),
-                        const Padding(
+                        SizedBox(width: 8),
+                        Padding(
                           padding: EdgeInsets.only(bottom: 4),
                           child: Text('Average',
                               style: TextStyle(
@@ -409,14 +410,14 @@ class _WeightTrendCard extends StatelessWidget {
               ),
               if (hasDelta)
                 Container(
-                  padding: const EdgeInsets.symmetric(
+                  padding: EdgeInsets.symmetric(
                       horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: deltaColor,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text('$delta kg',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
@@ -424,11 +425,11 @@ class _WeightTrendCard extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           SizedBox(
             height: 40,
             child: weights.isEmpty
-                ? const Align(
+                ? Align(
                     alignment: Alignment.centerLeft,
                     child: Text('No weight data for this period',
                         style:
@@ -436,9 +437,9 @@ class _WeightTrendCard extends StatelessWidget {
                   )
                 : _MiniBars(values: _lastN(weights, 7)),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text('$count entries',
-              style: const TextStyle(color: _textMuted, fontSize: 12)),
+              style: TextStyle(color: _textMuted, fontSize: 12)),
         ],
       ),
     );
@@ -502,7 +503,7 @@ class _VitalRowCard extends StatelessWidget {
           color: _creamCard,
           borderRadius: BorderRadius.circular(12),
         ),
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         child: Row(
           children: [
             Container(
@@ -515,36 +516,36 @@ class _VitalRowCard extends StatelessWidget {
               alignment: Alignment.center,
               child: tileIcon,
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: _textMain,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       )),
                   Text(subtitle,
                       style:
-                          const TextStyle(color: _textMuted, fontSize: 14)),
+                          TextStyle(color: _textMuted, fontSize: 14)),
                   if (extraLine != null)
                     Text(extraLine!,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: _textMuted, fontSize: 12)),
                 ],
               ),
             ),
             Container(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: statusColor,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text('• $statusLabel',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _creamBg,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -636,8 +637,8 @@ class _InsightsSection extends StatelessWidget {
           color: _creamCard,
           borderRadius: BorderRadius.circular(12),
         ),
-        padding: const EdgeInsets.all(16),
-        child: const Text('Log more data to see health insights!',
+        padding: EdgeInsets.all(16),
+        child: Text('Log more data to see health insights!',
             style: TextStyle(color: _textMuted, fontSize: 14)),
       ));
     }
@@ -645,7 +646,7 @@ class _InsightsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(bottom: 8),
           child: Text('HEALTH INSIGHTS',
               style: TextStyle(
@@ -657,7 +658,7 @@ class _InsightsSection extends StatelessWidget {
         ),
         for (var i = 0; i < cards.length; i++) ...[
           cards[i],
-          if (i != cards.length - 1) const SizedBox(height: 12),
+          if (i != cards.length - 1) SizedBox(height: 12),
         ],
       ],
     );
@@ -682,28 +683,28 @@ class _InsightCard extends StatelessWidget {
           color: _creamCard,
           borderRadius: BorderRadius.circular(12),
         ),
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 2),
+              padding: EdgeInsets.only(top: 2),
               child: Icon(icon, color: iconTint, size: 20),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: _textMain,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       )),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text('• $body',
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: _textMuted, fontSize: 14)),
                 ],
               ),
