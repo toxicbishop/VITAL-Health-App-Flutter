@@ -28,4 +28,6 @@ class ApiClient {
   Future<bool> logBP(BPEntry entry) => _post(entry.toJson());
 
   Future<bool> logBoth(BothEntry entry) => _post(entry.toJson());
+
+  Future<bool> logHr(HeartRateEntry entry) => _post(entry.toJson());
 }
