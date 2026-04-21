@@ -70,7 +70,7 @@ class MedsScreen extends StatelessWidget {
                     _MedicationCard(
                       entry: meds[i],
                       onDelete: () =>
-                          context.read<HealthDataProvider>().removeLog(meds[i]),
+                          context.read<HealthDataProvider>().deleteLog(meds[i]),
                     ),
                     if (i != meds.length - 1) SizedBox(height: 12),
                   ],

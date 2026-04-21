@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../data/api_client.dart';
+import '../../data/models.dart';
 
 class JournalEntry {
   final String id;
@@ -46,6 +48,9 @@ class JournalEntry {
 class JournalProvider extends ChangeNotifier {
   static const _prefsKey = 'journal_entries';
   final List<JournalEntry> _entries = [];
+  final ApiClient Function() _clientFactory;
+
+  JournalProvider(this._clientFactory);
 
   List<JournalEntry> get entries {
     final sorted = [..._entries]
@@ -71,6 +76,18 @@ class JournalProvider extends ChangeNotifier {
     await prefs.setString(_prefsKey, raw);
   }
 
+  /// Syncs with cloud using generic log type
+  Future<void> _syncToCloud(JournalEntry entry) async {
+    await _clientFactory().logGeneric(LogEntry(
+      uid: entry.id,
+      logType: 'JOURNAL',
+      value: entry.title,
+      unit: 'note',
+      notes: entry.body,
+      timestamp: entry.updatedAt,
+    ));
+  }
+
   Future<JournalEntry> add({required String title, required String body}) async {
     final now = DateTime.now();
     final entry = JournalEntry(
@@ -83,6 +100,7 @@ class JournalProvider extends ChangeNotifier {
     _entries.add(entry);
     notifyListeners();
     await _persist();
+    _syncToCloud(entry); // Background sync
     return entry;
   }
 
@@ -97,11 +115,14 @@ class JournalProvider extends ChangeNotifier {
     );
     notifyListeners();
     await _persist();
+    _syncToCloud(_entries[idx]); // Background sync
   }
 
   Future<void> remove(String id) async {
     _entries.removeWhere((e) => e.id == id);
     notifyListeners();
     await _persist();
+    // Cloud Delete
+    _clientFactory().deleteLog(id);
   }
 }

@@ -12,43 +12,60 @@ class HealthDataProvider extends ChangeNotifier {
   bool get isBusy => _busy;
   List<LogEntry> get logs => List.unmodifiable(_logs);
 
-  void _add(LogEntry e) {
+  String _genUid() => DateTime.now().microsecondsSinceEpoch.toString();
+
+  void _addLocal(LogEntry e) {
     _logs.add(e);
     notifyListeners();
   }
 
-  /// Local-only removal — used for items that were never persisted
-  /// (mood, medication, appointment, note).
-  void removeLog(LogEntry entry) {
-    _logs.remove(entry);
+  /// Syncs any log entry to the cloud
+  Future<bool> _syncLog(LogEntry entry) async {
+    return await _clientFactory().logGeneric(entry);
+  }
+
+  /// Deletes a log entry globally
+  Future<void> deleteLog(LogEntry entry) async {
+    _busy = true;
+    notifyListeners();
+    final ok = await _clientFactory().deleteLog(entry.uid);
+    if (ok) {
+      _logs.remove(entry);
+    }
+    _busy = false;
     notifyListeners();
   }
 
-  /// Generic local-only log add (used by mood, medication, HR, appointment,
-  /// note — not part of the PRD persistence path).
-  void addLog({
+  /// Refactored to sync with cloud. Previously local-only.
+  Future<void> addLog({
     required String logType,
     required String value,
     required String unit,
     String? notes,
-  }) {
-    _add(LogEntry(
+  }) async {
+    final entry = LogEntry(
+      uid: _genUid(),
       logType: logType,
       value: value,
       unit: unit,
       notes: notes,
       timestamp: DateTime.now(),
-    ));
+    );
+    _addLocal(entry);
+    // Best effort background sync
+    _syncLog(entry);
   }
 
   Future<bool> logWeight(double weight, {String? notes}) async {
     _busy = true;
     notifyListeners();
     final now = DateTime.now();
-    final entry = WeightEntry(weight: weight, date: now);
+    final uid = _genUid();
+    final entry = WeightEntry(uid: uid, weight: weight, date: now);
     final success = await _clientFactory().logWeight(entry);
     if (success) {
-      _add(LogEntry(
+      _addLocal(LogEntry(
+        uid: uid,
         logType: 'WEIGHT',
         value: weight.toString(),
         unit: 'kg',
@@ -65,10 +82,12 @@ class HealthDataProvider extends ChangeNotifier {
     _busy = true;
     notifyListeners();
     final now = DateTime.now();
-    final entry = BPEntry(systolic: systolic, diastolic: diastolic, date: now);
+    final uid = _genUid();
+    final entry = BPEntry(uid: uid, systolic: systolic, diastolic: diastolic, date: now);
     final success = await _clientFactory().logBP(entry);
     if (success) {
-      _add(LogEntry(
+      _addLocal(LogEntry(
+        uid: uid,
         logType: 'BLOOD_PRESSURE',
         value: '$systolic/$diastolic',
         unit: 'mmHg',
@@ -85,10 +104,12 @@ class HealthDataProvider extends ChangeNotifier {
     _busy = true;
     notifyListeners();
     final now = DateTime.now();
-    final entry = HeartRateEntry(bpm: bpm, date: now);
+    final uid = _genUid();
+    final entry = HeartRateEntry(uid: uid, bpm: bpm, date: now);
     final success = await _clientFactory().logHr(entry);
     if (success) {
-      _add(LogEntry(
+      _addLocal(LogEntry(
+        uid: uid,
         logType: 'HEART_RATE',
         value: bpm.toString(),
         unit: 'bpm',
@@ -110,7 +131,9 @@ class HealthDataProvider extends ChangeNotifier {
     _busy = true;
     notifyListeners();
     final now = DateTime.now();
+    final uid = _genUid();
     final entry = BothEntry(
+      uid: uid,
       weight: weight,
       systolic: systolic,
       diastolic: diastolic,
@@ -118,14 +141,16 @@ class HealthDataProvider extends ChangeNotifier {
     );
     final success = await _clientFactory().logBoth(entry);
     if (success) {
-      _add(LogEntry(
+      _addLocal(LogEntry(
+        uid: uid,
         logType: 'WEIGHT',
         value: weight.toString(),
         unit: 'kg',
         notes: notes,
         timestamp: now,
       ));
-      _add(LogEntry(
+      _addLocal(LogEntry(
+        uid: uid, // Shared UID for synchronized BOTH entries
         logType: 'BLOOD_PRESSURE',
         value: '$systolic/$diastolic',
         unit: 'mmHg',

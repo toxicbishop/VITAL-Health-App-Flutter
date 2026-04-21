@@ -11,6 +11,7 @@ Color get _textMuted => AppGlobals.textMuted;
 Color get _primaryBlack => AppGlobals.primaryBlack;
 Color get _vitalSuccess => AppGlobals.vitalSuccess;
 Color get _dangerRed => AppGlobals.dangerRed;
+
 class JournalScreen extends StatelessWidget {
   const JournalScreen({super.key});
 
@@ -50,7 +51,29 @@ class JournalScreen extends StatelessWidget {
               Column(
                 children: [
                   for (var i = 0; i < entries.length; i++) ...[
-                    _EntryCard(entry: entries[i]),
+                    Dismissible(
+                      key: Key(entries[i].id),
+                      direction: DismissDirection.endToStart,
+                      onDismissed: (_) {
+                        context.read<JournalProvider>().remove(entries[i].id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Entry deleted.'),
+                            backgroundColor: _dangerRed,
+                          ),
+                        );
+                      },
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        decoration: BoxDecoration(
+                          color: _dangerRed,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.delete_outline, color: _creamBg),
+                      ),
+                      child: _EntryCard(entry: entries[i]),
+                    ),
                     if (i != entries.length - 1) SizedBox(height: 12),
                   ],
                 ],
