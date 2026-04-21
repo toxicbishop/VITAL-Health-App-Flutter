@@ -87,6 +87,11 @@ release-signing.properties
 google-services.json
 GoogleService-Info.plist
 
+# Service Account credentials for health_api
+credentials.json
+health_api/credentials.json
+health_api/.venv/
+
 # Firebase
 firebase_options.dart
 
