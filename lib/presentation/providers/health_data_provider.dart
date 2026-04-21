@@ -37,13 +37,13 @@ class HealthDataProvider extends ChangeNotifier {
   Future<bool> logBoth(double weight, int systolic, int diastolic) async {
     _busy = true;
     notifyListeners();
-    final w = WeightEntry(weight: weight, date: DateTime.now());
-    final bp = BPEntry(
+    final entry = BothEntry(
+      weight: weight,
       systolic: systolic,
       diastolic: diastolic,
       date: DateTime.now(),
     );
-    final success = await _clientFactory().logBoth(w, bp);
+    final success = await _clientFactory().logBoth(entry);
     _busy = false;
     notifyListeners();
     return success;

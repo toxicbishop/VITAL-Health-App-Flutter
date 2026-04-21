@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/api_client.dart';
+import '../../data/models.dart';
 
 class AppConfigProvider extends ChangeNotifier {
   String _scriptUrl = '';
@@ -27,13 +28,21 @@ class AppConfigProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setConfig(String url, String name) async {
+  /// Persists config locally and pushes the profile name to the Google Sheet
+  /// (API PRD AC3 — single active profile record, upserted server-side).
+  /// Returns true if the sheet accepted the profile write.
+  Future<bool> setConfig(String url, String name) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('script_url', url);
     await prefs.setString('user_name', name);
     _scriptUrl = url;
     _userName = name;
     notifyListeners();
+
+    final ok = await ApiClient(scriptUrl: url).saveProfile(
+      ProfileEntry(name: name, date: DateTime.now()),
+    );
+    return ok;
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
