@@ -1,6 +1,6 @@
-fastapi
-uvicorn
-gspread
-google-auth
-python-dotenv
-pydantic
+fastapi==0.115.0
+uvicorn==0.30.6
+gspread==6.1.4
+google-auth==2.35.0
+python-dotenv==1.0.1
+pydantic==2.9.2
