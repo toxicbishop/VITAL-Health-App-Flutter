@@ -727,27 +727,6 @@ class _BottomNav extends StatelessWidget {
       );
 }
 
-class _ComingSoon extends StatelessWidget {
-  final String title;
-  const _ComingSoon({required this.title});
-
-  @override
-  Widget build(BuildContext context) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(title,
-                style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: _textMain)),
-            const SizedBox(height: 8),
-            const Text('Coming soon',
-                style: TextStyle(color: _textMuted, fontSize: 14)),
-          ],
-        ),
-      );
-}
 
 // ---------------------------------------------------------------------------
 // DIALOGS
