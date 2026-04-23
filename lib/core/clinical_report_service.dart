@@ -13,33 +13,46 @@ class ClinicalReportService {
         header: (pw.Context context) => pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Text('VITAL Clinical Health Report', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 18)),
+            pw.Text(
+              'VITAL Clinical Health Report',
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 18),
+            ),
             pw.Text(userName),
           ],
         ),
         footer: (pw.Context context) => pw.Align(
           alignment: pw.Alignment.centerRight,
-          child: pw.Text('Report Generated on ${DateTime.now().toIso8601String().split('T')[0]}'),
+          child: pw.Text(
+            'Report Generated on ${DateTime.now().toIso8601String().split('T')[0]}',
+          ),
         ),
         build: (pw.Context context) => [
           pw.Header(level: 0, text: 'Monthly Log Summary'),
           pw.TableHelper.fromTextArray(
             headers: ['Date', 'Type', 'Value', 'Notes'],
-            data: logs.map((l) => [
-              l.timestamp.toIso8601String().split('T')[0],
-              l.logType,
-              l.value,
-              l.notes ?? '',
-            ]).toList(),
+            data: logs
+                .map(
+                  (l) => [
+                    l.timestamp.toIso8601String().split('T')[0],
+                    l.logType,
+                    l.value,
+                    l.notes ?? '',
+                  ],
+                )
+                .toList(),
           ),
         ],
       ),
     );
 
     final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/VITAL_Report_${DateTime.now().millisecondsSinceEpoch}.pdf');
+    final file = File(
+      '${dir.path}/VITAL_Report_${DateTime.now().millisecondsSinceEpoch}.pdf',
+    );
     await file.writeAsBytes(await pdf.save());
 
-    await Share.shareXFiles([XFile(file.path)], text: 'Health logs for $userName');
+    await SharePlus.instance.share(
+      ShareParams(files: [XFile(file.path)], text: 'Health logs for $userName'),
+    );
   }
 }
