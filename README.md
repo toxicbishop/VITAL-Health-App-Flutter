@@ -88,7 +88,9 @@ VITAL is a streamlined health tracker built with Flutter and backed by Google Ap
 
 ## Architecture
 
-<img src="assets/Arcitecture.png" width="250" alt="System Architecture" />
+<div align="center">
+  <img src="assets/Arcitecture.png" width="600" alt="System Architecture" />
+</div>
 
 VITAL follows a 3-tier architecture designed for simplicity, privacy, and zero infrastructure costs. This structure ensures a clear separation between the user interface, the communication layer, and the data storage.
 
