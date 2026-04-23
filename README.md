@@ -18,9 +18,13 @@ VITAL is a streamlined health tracker built with Flutter and backed by Google Ap
 
 ## Screenshots
 
-| Dashboard | Trends | Journal |
+| Dashboard | Trends | Meds |
 | :---: | :---: | :---: |
-| <img src="assets/Flutter-Home.png" width="250" alt="Dashboard with vitals, mood, medication, and appointment sections" /> | <img src="assets/Flutter-Journal.png" width="250" alt="Health trends screen with weight, BP, and HR analytics" /> | <img src="assets/Flutter-Settings.png" width="250" alt="Personal health journal with CRUD entries" /> |
+| <img src="assets/Dashboard.png" width="250" alt="App Dashboard" /> | <img src="assets/Trends.png" width="250" alt="Health Trends" /> | <img src="assets/Meds.png" width="250" alt="Medication Tracking" /> |
+
+| Journal | Settings |
+| :---: | :---: |
+| <img src="assets/Journal.png" width="250" alt="Health Journal" /> | <img src="assets/Settings.png" width="250" alt="App Settings" /> |
 
 ---
 
@@ -39,7 +43,7 @@ VITAL is a streamlined health tracker built with Flutter and backed by Google Ap
 
 | Feature | Description |
 | :--- | :--- |
-| **Mood Tracking** | Emoji-based mood logging (😄 Great → 😢 Bad) with optional notes. |
+| **Mood Tracking** | Icon-based mood logging (Great to Bad) with optional notes. |
 | **Medication Management** | Add, track, and mark prescriptions as taken via a dedicated Meds tab. |
 | **Journal** | Personal health journal with full CRUD — titles, body text, timestamps, and local persistence via SharedPreferences. |
 | **Appointments** | Track upcoming doctor visits with name, date, and notes. |
@@ -84,28 +88,33 @@ VITAL is a streamlined health tracker built with Flutter and backed by Google Ap
 
 ## Architecture
 
-```text
-lib/
-├── core/
-│   ├── app_theme.dart            # Light + dark theme with Playfair/Inter
-│   └── health_validators.dart    # Input validation + BMI/BP classification
-├── data/
-│   ├── api_client.dart           # HTTP client for Apps Script communication
-│   └── models.dart               # LogEntry, WeightEntry, BPEntry, HeartRateEntry, etc.
-├── presentation/
-│   ├── providers/
-│   │   ├── app_config_provider.dart    # Script URL, username, theme mode
-│   │   ├── health_data_provider.dart   # In-memory log history + API calls
-│   │   └── journal_provider.dart       # Local journal CRUD with persistence
-│   └── screens/
-│       ├── dashboard_screen.dart   # Main 5-tab shell + Home tab (1367 lines)
-│       ├── trends_screen.dart      # Analytics with charts + insights
-│       ├── meds_screen.dart        # Medication tracking
-│       ├── journal_screen.dart     # Personal health journal
-│       ├── settings_screen.dart    # Profile, theme, app info, reset
-│       └── onboarding_screen.dart  # First-run setup (name + URL)
-└── main.dart                       # Entry point with MultiProvider
-```
+<img src="assets/Arcitecture.png" width="250" alt="System Architecture" />
+
+VITAL follows a 3-tier architecture designed for simplicity, privacy, and zero infrastructure costs. This structure ensures a clear separation between the user interface, the communication layer, and the data storage.
+
+### Presentation Tier (Mobile Client)
+The frontend is built with Flutter and follows a Provider-based state management pattern. It is organized into three main layers:
+- **Screens and UI**: Responsive Material 3 components utilizing the Cream Design System.
+- **Providers**: Manage the application state, including health data synchronization, journal entries, and configuration settings.
+- **Theme and Core**: Centralized styling using Google Fonts and robust validation logic for health metrics.
+
+### Logic Tier (Middle Layer)
+The middle layer consists of a Google Apps Script Web App. This serves as a secure bridge between the mobile application and the database. It handles:
+- Incoming HTTP POST requests from the client.
+- Data formatting and validation before storage.
+- Retrieval of historical logs for trend analysis.
+
+### Data Tier (Storage)
+VITAL utilizes a hybrid storage approach to balance performance and accessibility:
+- **Cloud Storage**: Google Sheets acts as the primary database for vitals (Weight, Blood Pressure, Heart Rate). This allows users to access their raw data directly through a spreadsheet.
+- **Local Storage**: SharedPreferences is used for the personal journal and application configuration, ensuring that private notes and settings remain on the device.
+
+### File Structure
+The project follows a modular directory structure:
+- **lib/core/**: Core utilities, theme definitions, and health validators.
+- **lib/data/**: Data models and the API client for backend communication.
+- **lib/presentation/**: UI screens and state management providers.
+- **main.dart**: The application entry point and provider initialization.
 
 ---
 
