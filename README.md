@@ -14,7 +14,7 @@
 
 ## Overview
 
-VITAL is a streamlined health tracker built with Flutter and backed by Google Apps Script + Google Sheets. It started as an ultra-lightweight "Mom's Health Tracker" (weight & BP only) and has evolved into a full-featured multi-tab dashboard with journal, medication management, trends analytics, and more — while keeping a zero-server, zero-OAuth architecture.
+VITAL is a streamlined health tracker built with Flutter and backed by Google Apps Script + Google Sheets. It started as an ultra-lightweight App (weight & BP only) and has evolved into a full-featured multi-tab dashboard with journal, medication management, trends analytics, and more — while keeping a zero-server, zero-OAuth architecture.
 
 ## Screenshots
 
