@@ -38,7 +38,7 @@ class VitalApp extends StatelessWidget {
     return Consumer<AppConfigProvider>(
       builder: (context, cfg, _) {
           return MaterialApp(
-            title: 'VITAL (PRD)',
+            title: 'VITAL',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
