@@ -59,6 +59,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _dialogButton(
               'Log Weight Only',
               fill: _tanButton,
+              fg: _textMain,
               onTap: () {
                 Navigator.pop(ctx);
                 _showAddLog(initialType: 'WEIGHT', both: false);
@@ -68,6 +69,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _dialogButton(
               'Log BP Only',
               fill: _tanButton,
+              fg: _textMain,
               onTap: () {
                 Navigator.pop(ctx);
                 _showAddLog(initialType: 'BLOOD_PRESSURE', both: false);
