@@ -151,7 +151,7 @@ class _StepWelcome extends StatelessWidget {
   const _StepWelcome();
   @override
   Widget build(BuildContext context) => Column(children: [
-    const Text('🏥', style: TextStyle(fontSize: 64)),
+    _heroIcon(Icons.monitor_heart_outlined),
     const SizedBox(height: 24),
     Text("Welcome to\nVital Health", textAlign: TextAlign.center, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: _textMain, height: 1.2)),
     const SizedBox(height: 16),
@@ -164,7 +164,7 @@ class _StepUrl extends StatelessWidget {
   const _StepUrl({required this.controller});
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-    const Center(child: Text('🔗', style: TextStyle(fontSize: 64))),
+    Center(child: _heroIcon(Icons.link_outlined)),
     const SizedBox(height: 24),
     Text('Connect Sheet', textAlign: TextAlign.center, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _textMain)),
     const SizedBox(height: 8),
@@ -179,7 +179,7 @@ class _StepName extends StatelessWidget {
   const _StepName({required this.controller});
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-    const Center(child: Text('👤', style: TextStyle(fontSize: 64))),
+    Center(child: _heroIcon(Icons.person_outline)),
     const SizedBox(height: 24),
     Text("What's your name?", textAlign: TextAlign.center, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _textMain)),
     const SizedBox(height: 8),
@@ -200,5 +200,28 @@ Widget _field({required TextEditingController controller, required String label,
     labelStyle: TextStyle(color: _textMuted),
     enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: _tanButton)),
     focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: _primaryBlack)),
+  ),
+);
+
+Widget _heroIcon(IconData icon) => Container(
+  width: 80,
+  height: 80,
+  decoration: BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [_primaryBlack, _textMuted],
+    ),
+    shape: BoxShape.circle,
+    boxShadow: [
+      BoxShadow(
+        color: _primaryBlack.withValues(alpha: 0.18),
+        blurRadius: 16,
+        offset: const Offset(0, 8),
+      ),
+    ],
+  ),
+  child: Center(
+    child: Icon(icon, color: _creamBg, size: 40),
   ),
 );
