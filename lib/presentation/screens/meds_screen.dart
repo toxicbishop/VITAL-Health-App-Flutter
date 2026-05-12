@@ -6,11 +6,16 @@ import '../providers/health_data_provider.dart';
 
 Color get _creamBg => AppGlobals.creamBg;
 Color get _creamCard => AppGlobals.creamCard;
+Color get _creamCardTop => AppGlobals.creamCardTop;
 Color get _tanButton => AppGlobals.tanButton;
+Color get _tanButtonLifted => AppGlobals.tanButtonLifted;
 Color get _textMain => AppGlobals.textMain;
 Color get _textMuted => AppGlobals.textMuted;
 Color get _primaryBlack => AppGlobals.primaryBlack;
 Color get _vitalSuccess => AppGlobals.vitalSuccess;
+Color get _surfaceBorder => AppGlobals.surfaceBorder;
+Color get _glowGold => AppGlobals.glowGold;
+
 class MedsScreen extends StatelessWidget {
   const MedsScreen({super.key});
 
@@ -22,7 +27,13 @@ class MedsScreen extends StatelessWidget {
     final activeCount = meds.length;
 
     return Container(
-      color: _creamBg,
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: const Alignment(-0.7, -0.85),
+          radius: 1.2,
+          colors: [_glowGold, _creamBg],
+        ),
+      ),
       child: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
@@ -87,13 +98,15 @@ class MedsScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _primaryBlack,
                   foregroundColor: _creamBg,
+                  elevation: 10,
+                  shadowColor: _primaryBlack.withValues(alpha: 0.25),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: Text(
                   '+ Add New Medication',
-                  style:
-                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -114,8 +127,14 @@ class _ProgressCard extends StatelessWidget {
     final hasMeds = activeCount > 0;
     return Container(
       decoration: BoxDecoration(
-        color: _creamCard,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [_creamCardTop, _creamCard],
+        ),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _surfaceBorder),
+        boxShadow: AppGlobals.softShadow,
       ),
       padding: EdgeInsets.all(16),
       child: Column(
@@ -149,7 +168,7 @@ class _ProgressCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: hasMeds ? 1.0 : 0.0,
               minHeight: 8,
-              backgroundColor: _tanButton,
+              backgroundColor: _tanButtonLifted,
               color: _primaryBlack,
             ),
           ),
@@ -164,31 +183,37 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          color: _creamCard,
-          borderRadius: BorderRadius.circular(12),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [_creamCardTop, _creamCard],
+      ),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: _surfaceBorder),
+      boxShadow: AppGlobals.softShadow,
+    ),
+    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+    child: Column(
+      children: [
+        Icon(Icons.medication_outlined, color: _textMuted, size: 40),
+        SizedBox(height: 12),
+        Text(
+          'No medications yet',
+          style: TextStyle(
+            color: _textMain,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 32),
-        child: Column(
-          children: [
-            Icon(Icons.medication_outlined, color: _textMuted, size: 40),
-            SizedBox(height: 12),
-            Text(
-              'No medications yet',
-              style: TextStyle(
-                color: _textMain,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(height: 4),
-            Text(
-              'Tap "+ Add New Medication" to start',
-              style: TextStyle(color: _textMuted, fontSize: 13),
-            ),
-          ],
+        SizedBox(height: 4),
+        Text(
+          'Tap "+ Add New Medication" to start',
+          style: TextStyle(color: _textMuted, fontSize: 13),
         ),
-      );
+      ],
+    ),
+  );
 }
 
 class _MedicationCard extends StatelessWidget {
@@ -198,62 +223,74 @@ class _MedicationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          color: _creamCard,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: _tanButton,
-                borderRadius: BorderRadius.circular(8),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [_creamCardTop, _creamCard],
+      ),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: _surfaceBorder),
+      boxShadow: AppGlobals.softShadow,
+    ),
+    padding: EdgeInsets.all(16),
+    child: Row(
+      children: [
+        Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: _tanButtonLifted,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: _primaryBlack.withValues(alpha: 0.08),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
               ),
-              alignment: Alignment.center,
-              child: Text('💊', style: TextStyle(fontSize: 22)),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    entry.value,
-                    style: TextStyle(
-                      color: _textMain,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    entry.notes?.isNotEmpty == true
-                        ? entry.notes!
-                        : '1 dose',
-                    style: TextStyle(color: _textMuted, fontSize: 14),
-                  ),
-                ],
-              ),
-            ),
-            IconButton(
-              onPressed: () => _confirmDelete(context),
-              icon: Icon(Icons.delete_outline,
-                  color: Color(0xFFB00020), size: 20),
-              tooltip: 'Delete',
-            ),
-          ],
+            ],
+          ),
+          alignment: Alignment.center,
+          child: Text('💊', style: TextStyle(fontSize: 22)),
         ),
-      );
+        SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                entry.value,
+                style: TextStyle(
+                  color: _textMain,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                entry.notes?.isNotEmpty == true ? entry.notes! : '1 dose',
+                style: TextStyle(color: _textMuted, fontSize: 14),
+              ),
+            ],
+          ),
+        ),
+        IconButton(
+          onPressed: () => _confirmDelete(context),
+          icon: Icon(Icons.delete_outline, color: Color(0xFFB00020), size: 20),
+          tooltip: 'Delete',
+        ),
+      ],
+    ),
+  );
 
   void _confirmDelete(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: _creamCard,
-        title: Text('Remove medication?',
-            style: TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
+        title: Text(
+          'Remove medication?',
+          style: TextStyle(color: _textMain, fontWeight: FontWeight.bold),
+        ),
         content: Text(
           'Delete "${entry.value}" from your medication list?',
           style: TextStyle(color: _textMuted),
@@ -265,7 +302,8 @@ class _MedicationCard extends StatelessWidget {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFB00020)),
+              backgroundColor: const Color(0xFFB00020),
+            ),
             onPressed: () {
               onDelete();
               Navigator.pop(ctx);
@@ -299,70 +337,71 @@ class _AddMedDialogState extends State<_AddMedDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        backgroundColor: _creamCard,
-        title: Text('Add Medication',
-            style: TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _field(controller: _name, label: 'Medication Name'),
-            SizedBox(height: 12),
-            _field(controller: _dosage, label: 'Dosage (e.g. 1 tablet)'),
-            SizedBox(height: 12),
-            _field(controller: _time, label: 'Time (e.g. 8:00 AM)'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: _textMuted)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack),
-            onPressed: () {
-              final name = _name.text.trim();
-              if (name.isEmpty) return;
-              final dosage = _dosage.text.trim();
-              final time = _time.text.trim();
-              final notes = [dosage, time]
-                  .where((s) => s.isNotEmpty)
-                  .join(' • ');
-              context.read<HealthDataProvider>().addLog(
-                    logType: 'MEDICATION',
-                    value: name,
-                    unit: 'dose',
-                    notes: notes.isEmpty ? null : notes,
-                  );
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: _vitalSuccess,
-                content: Text('Medication added.'),
-              ));
-            },
-            child: Text('Save', style: TextStyle(color: _creamBg)),
-          ),
-        ],
-      );
+    backgroundColor: _creamCard,
+    title: Text(
+      'Add Medication',
+      style: TextStyle(color: _textMain, fontWeight: FontWeight.bold),
+    ),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _field(controller: _name, label: 'Medication Name'),
+        SizedBox(height: 12),
+        _field(controller: _dosage, label: 'Dosage (e.g. 1 tablet)'),
+        SizedBox(height: 12),
+        _field(controller: _time, label: 'Time (e.g. 8:00 AM)'),
+      ],
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: Text('Cancel', style: TextStyle(color: _textMuted)),
+      ),
+      ElevatedButton(
+        style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack),
+        onPressed: () {
+          final name = _name.text.trim();
+          if (name.isEmpty) return;
+          final dosage = _dosage.text.trim();
+          final time = _time.text.trim();
+          final notes = [dosage, time].where((s) => s.isNotEmpty).join(' • ');
+          context.read<HealthDataProvider>().addLog(
+            logType: 'MEDICATION',
+            value: name,
+            unit: 'dose',
+            notes: notes.isEmpty ? null : notes,
+          );
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: _vitalSuccess,
+              content: Text('Medication added.'),
+            ),
+          );
+        },
+        child: Text('Save', style: TextStyle(color: _creamBg)),
+      ),
+    ],
+  );
 }
 
 Widget _field({
   required TextEditingController controller,
   required String label,
-}) =>
-    TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: _textMuted),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _tanButton),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _primaryBlack),
-        ),
-      ),
-      style: TextStyle(color: _textMain),
-    );
+}) => TextField(
+  controller: controller,
+  decoration: InputDecoration(
+    labelText: label,
+    labelStyle: TextStyle(color: _textMuted),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: _tanButton),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: _primaryBlack),
+    ),
+  ),
+  style: TextStyle(color: _textMain),
+);
