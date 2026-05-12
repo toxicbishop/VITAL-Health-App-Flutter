@@ -46,47 +46,59 @@ class JournalScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Journal',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: _textMain,
+              AppRevealAnimation(
+                delay: const Duration(milliseconds: 40),
+                child: Text(
+                  'Journal',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: _textMain,
+                  ),
                 ),
               ),
-              Text(
-                'Personal health observations',
-                style: TextStyle(color: _textMuted, fontSize: 14),
+              AppRevealAnimation(
+                delay: const Duration(milliseconds: 90),
+                child: Text(
+                  'Personal health observations',
+                  style: TextStyle(color: _textMuted, fontSize: 14),
+                ),
               ),
               SizedBox(height: 24),
               if (entries.isEmpty)
-                const _EmptyState()
+                const AppRevealAnimation(
+                  delay: Duration(milliseconds: 140),
+                  child: _EmptyState(),
+                )
               else
                 Column(
                   children: [
                     for (var i = 0; i < entries.length; i++) ...[
-                      Dismissible(
-                        key: Key(entries[i].id),
-                        direction: DismissDirection.endToStart,
-                        onDismissed: (_) {
-                          context.read<JournalProvider>().remove(entries[i].id);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Entry deleted.'),
-                              backgroundColor: _dangerRed,
+                      AppRevealAnimation(
+                        delay: Duration(milliseconds: 140 + (i * 50)),
+                        child: Dismissible(
+                          key: Key(entries[i].id),
+                          direction: DismissDirection.endToStart,
+                          onDismissed: (_) {
+                            context.read<JournalProvider>().remove(entries[i].id);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Entry deleted.'),
+                                backgroundColor: _dangerRed,
+                              ),
+                            );
+                          },
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            decoration: BoxDecoration(
+                              color: _dangerRed,
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          );
-                        },
-                        background: Container(
-                          alignment: Alignment.centerRight,
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          decoration: BoxDecoration(
-                            color: _dangerRed,
-                            borderRadius: BorderRadius.circular(12),
+                            child: Icon(Icons.delete_outline, color: _creamBg),
                           ),
-                          child: Icon(Icons.delete_outline, color: _creamBg),
+                          child: _EntryCard(entry: entries[i]),
                         ),
-                        child: _EntryCard(entry: entries[i]),
                       ),
                       if (i != entries.length - 1) SizedBox(height: 12),
                     ],
@@ -125,8 +137,29 @@ class _EmptyState extends StatelessWidget {
     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 40),
     child: Column(
       children: [
-        Text('📝', style: TextStyle(fontSize: 48)),
-        SizedBox(height: 12),
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [_primaryBlack, _textMuted],
+            ),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: _primaryBlack.withValues(alpha: 0.18),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Icon(Icons.book_outlined, color: _creamBg, size: 40),
+          ),
+        ),
+        SizedBox(height: 24),
         Text(
           'No journal entries yet',
           style: TextStyle(
