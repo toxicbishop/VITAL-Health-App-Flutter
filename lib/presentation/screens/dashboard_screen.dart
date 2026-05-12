@@ -290,7 +290,7 @@ class _HomeTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _DashboardReveal(
+          AppRevealAnimation(
             delay: const Duration(milliseconds: 40),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -331,7 +331,7 @@ class _HomeTab extends StatelessWidget {
             ),
           ),
           SizedBox(height: 18),
-          _DashboardReveal(
+          AppRevealAnimation(
             delay: const Duration(milliseconds: 90),
             child: _TodaySummaryCard(
               userName: userName,
@@ -356,7 +356,7 @@ class _HomeTab extends StatelessWidget {
             ),
             SizedBox(height: 24),
           ],
-          _DashboardReveal(
+          AppRevealAnimation(
             delay: const Duration(milliseconds: 140),
             child: Row(
               children: [
@@ -713,34 +713,7 @@ class _HomeTab extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // SHARED COMPONENTS
 // ---------------------------------------------------------------------------
-class _DashboardReveal extends StatelessWidget {
-  final Widget child;
-  final Duration delay;
-  const _DashboardReveal({required this.child, required this.delay});
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: Duration(milliseconds: 520 + delay.inMilliseconds),
-      curve: Curves.easeOutCubic,
-      builder: (context, value, child) {
-        final delayed =
-            ((value * (520 + delay.inMilliseconds)) - delay.inMilliseconds)
-                .clamp(0.0, 520.0) /
-            520.0;
-        return Opacity(
-          opacity: delayed,
-          child: Transform.translate(
-            offset: Offset(0, 18 * (1 - delayed)),
-            child: child,
-          ),
-        );
-      },
-      child: child,
-    );
-  }
-}
+// Removed _DashboardReveal in favor of AppRevealAnimation in app_globals.dart
 
 class _TodaySummaryCard extends StatelessWidget {
   final String userName;

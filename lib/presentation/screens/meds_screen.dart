@@ -39,49 +39,67 @@ class MedsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Medications',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: _textMain,
+            AppRevealAnimation(
+              delay: const Duration(milliseconds: 40),
+              child: Text(
+                'Medications',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: _textMain,
+                ),
               ),
             ),
-            Text(
-              'Track your daily prescriptions',
-              style: TextStyle(color: _textMuted, fontSize: 14),
+            AppRevealAnimation(
+              delay: const Duration(milliseconds: 90),
+              child: Text(
+                'Track your daily prescriptions',
+                style: TextStyle(color: _textMuted, fontSize: 14),
+              ),
             ),
             SizedBox(height: 24),
-            _ProgressCard(activeCount: activeCount),
+            AppRevealAnimation(
+              delay: const Duration(milliseconds: 140),
+              child: _ProgressCard(activeCount: activeCount),
+            ),
             SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Schedule',
-                  style: TextStyle(
-                    color: _textMain,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+            AppRevealAnimation(
+              delay: const Duration(milliseconds: 190),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Schedule',
+                    style: TextStyle(
+                      color: _textMain,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                Text(
-                  '$activeCount ${activeCount == 1 ? "Med" : "Meds"}',
-                  style: TextStyle(color: _textMuted, fontSize: 12),
-                ),
-              ],
+                  Text(
+                    '$activeCount ${activeCount == 1 ? "Med" : "Meds"}',
+                    style: TextStyle(color: _textMuted, fontSize: 12),
+                  ),
+                ],
+              ),
             ),
             SizedBox(height: 12),
             if (meds.isEmpty)
-              const _EmptyState()
+              const AppRevealAnimation(
+                delay: Duration(milliseconds: 240),
+                child: _EmptyState(),
+              )
             else
               Column(
                 children: [
                   for (var i = 0; i < meds.length; i++) ...[
-                    _MedicationCard(
-                      entry: meds[i],
-                      onDelete: () =>
-                          context.read<HealthDataProvider>().deleteLog(meds[i]),
+                    AppRevealAnimation(
+                      delay: Duration(milliseconds: 240 + (i * 50)),
+                      child: _MedicationCard(
+                        entry: meds[i],
+                        onDelete: () =>
+                            context.read<HealthDataProvider>().deleteLog(meds[i]),
+                      ),
                     ),
                     if (i != meds.length - 1) SizedBox(height: 12),
                   ],
@@ -196,8 +214,29 @@ class _EmptyState extends StatelessWidget {
     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 32),
     child: Column(
       children: [
-        Icon(Icons.medication_outlined, color: _textMuted, size: 40),
-        SizedBox(height: 12),
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [_primaryBlack, _textMuted],
+            ),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: _primaryBlack.withValues(alpha: 0.18),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Icon(Icons.medication_outlined, color: _creamBg, size: 40),
+          ),
+        ),
+        SizedBox(height: 24),
         Text(
           'No medications yet',
           style: TextStyle(
@@ -251,7 +290,7 @@ class _MedicationCard extends StatelessWidget {
             ],
           ),
           alignment: Alignment.center,
-          child: Text('💊', style: TextStyle(fontSize: 22)),
+          child: Icon(Icons.medication, color: _primaryBlack, size: 24),
         ),
         SizedBox(width: 16),
         Expanded(
