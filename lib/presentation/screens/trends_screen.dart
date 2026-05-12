@@ -7,11 +7,14 @@ import '../providers/health_data_provider.dart';
 
 Color get _creamBg => AppGlobals.creamBg;
 Color get _creamCard => AppGlobals.creamCard;
-Color get _tanButton => AppGlobals.tanButton;
+Color get _creamCardTop => AppGlobals.creamCardTop;
+Color get _tanButtonLifted => AppGlobals.tanButtonLifted;
 Color get _textMain => AppGlobals.textMain;
 Color get _textMuted => AppGlobals.textMuted;
 Color get _primaryBlack => AppGlobals.primaryBlack;
 Color get _vitalSuccess => AppGlobals.vitalSuccess;
+Color get _surfaceBorder => AppGlobals.surfaceBorder;
+Color get _glowGold => AppGlobals.glowGold;
 const _hrPink = Color(0xFFEC4899);
 
 enum _Period { week, month, year }
@@ -48,12 +51,18 @@ class _TrendsScreenState extends State<TrendsScreen> {
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
     final weightLogs = filtered.where((l) => l.logType == 'WEIGHT').toList();
-    final bpLogs = filtered.where((l) => l.logType == 'BLOOD_PRESSURE').toList();
+    final bpLogs = filtered
+        .where((l) => l.logType == 'BLOOD_PRESSURE')
+        .toList();
     final hrLogs = filtered.where((l) => l.logType == 'HEART_RATE').toList();
 
-    // Stats calculations 
-    final weights = weightLogs.map((l) => double.tryParse(l.value) ?? 0.0).toList();
-    final avgWeight = weights.isEmpty ? '--' : (weights.reduce((a, b) => a + b) / weights.length).toStringAsFixed(1);
+    // Stats calculations
+    final weights = weightLogs
+        .map((l) => double.tryParse(l.value) ?? 0.0)
+        .toList();
+    final avgWeight = weights.isEmpty
+        ? '--'
+        : (weights.reduce((a, b) => a + b) / weights.length).toStringAsFixed(1);
 
     final bpPairs = bpLogs.map((l) {
       final p = l.value.split('/');
@@ -61,7 +70,13 @@ class _TrendsScreenState extends State<TrendsScreen> {
     }).toList();
 
     return Container(
-      color: _creamBg,
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: const Alignment(0.8, -0.9),
+          radius: 1.2,
+          colors: [_glowGold, _creamBg],
+        ),
+      ),
       child: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -70,7 +85,10 @@ class _TrendsScreenState extends State<TrendsScreen> {
             SizedBox(height: 24),
             _SegmentedPeriod(
               value: _period,
-              onChanged: (p) => setState(() { _period = p; _customFrom = null; }),
+              onChanged: (p) => setState(() {
+                _period = p;
+                _customFrom = null;
+              }),
             ),
             SizedBox(height: 24),
             _ChartCard(
@@ -82,7 +100,9 @@ class _TrendsScreenState extends State<TrendsScreen> {
             SizedBox(height: 16),
             _ChartCard(
               title: 'BLOOD PRESSURE',
-              value: bpPairs.isEmpty ? '--' : '${bpPairs.last[0]}/${bpPairs.last[1]}',
+              value: bpPairs.isEmpty
+                  ? '--'
+                  : '${bpPairs.last[0]}/${bpPairs.last[1]}',
               subtitle: 'Latest Reading',
               child: _BPBarChart(logs: bpLogs),
             ),
@@ -91,7 +111,9 @@ class _TrendsScreenState extends State<TrendsScreen> {
               tileColor: _hrPink,
               tileIcon: Text('🫀', style: TextStyle(fontSize: 22)),
               title: 'Heart Rate',
-              subtitle: hrLogs.isEmpty ? '-- bpm' : '${hrLogs.last.value} bpm (Latest)',
+              subtitle: hrLogs.isEmpty
+                  ? '-- bpm'
+                  : '${hrLogs.last.value} bpm (Latest)',
               statusLabel: 'TRACKED',
               statusColor: _vitalSuccess,
             ),
@@ -108,11 +130,31 @@ class _TrendsScreenState extends State<TrendsScreen> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Health Trends', style: TextStyle(color: _textMain, fontSize: 28, fontWeight: FontWeight.bold)),
-          Text('Analytics & Visual Insights', style: TextStyle(color: _textMuted, fontSize: 14)),
+          Text(
+            'Health Trends',
+            style: TextStyle(
+              color: _textMain,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            'Analytics & Visual Insights',
+            style: TextStyle(color: _textMuted, fontSize: 14),
+          ),
         ],
       ),
-      Icon(Icons.analytics_outlined, color: _primaryBlack, size: 32),
+      Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: _creamCardTop,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: _surfaceBorder),
+          boxShadow: AppGlobals.softShadow,
+        ),
+        child: Icon(Icons.analytics_outlined, color: _primaryBlack, size: 28),
+      ),
     ],
   );
 }
@@ -123,23 +165,58 @@ class _ChartCard extends StatelessWidget {
   final String subtitle;
   final Widget child;
 
-  const _ChartCard({required this.title, required this.value, required this.subtitle, required this.child});
+  const _ChartCard({
+    required this.title,
+    required this.value,
+    required this.subtitle,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) => Container(
     padding: EdgeInsets.all(20),
-    decoration: BoxDecoration(color: _creamCard, borderRadius: BorderRadius.circular(16)),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [_creamCardTop, _creamCard],
+      ),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: _surfaceBorder),
+      boxShadow: AppGlobals.softShadow,
+    ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: TextStyle(color: _textMuted, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+        Text(
+          title,
+          style: TextStyle(
+            color: _textMuted,
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
         SizedBox(height: 8),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(value, style: TextStyle(color: _textMain, fontSize: 26, fontWeight: FontWeight.bold)),
+            Text(
+              value,
+              style: TextStyle(
+                color: _textMain,
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             SizedBox(width: 8),
-            Padding(padding: EdgeInsets.only(bottom: 4), child: Text(subtitle, style: TextStyle(color: _textMuted, fontSize: 12))),
+            Padding(
+              padding: EdgeInsets.only(bottom: 4),
+              child: Text(
+                subtitle,
+                style: TextStyle(color: _textMuted, fontSize: 12),
+              ),
+            ),
           ],
         ),
         SizedBox(height: 24),
@@ -155,8 +232,12 @@ class _WeightLineChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (logs.isEmpty) return Center(child: Text('No data', style: TextStyle(color: _textMuted)));
-    
+    if (logs.isEmpty) {
+      return Center(
+        child: Text('No data', style: TextStyle(color: _textMuted)),
+      );
+    }
+
     final spots = logs.asMap().entries.map((e) {
       return FlSpot(e.key.toDouble(), double.tryParse(e.value.value) ?? 0);
     }).toList();
@@ -174,7 +255,14 @@ class _WeightLineChart extends StatelessWidget {
             barWidth: 4,
             isStrokeCapRound: true,
             dotData: FlDotData(show: spots.length < 10),
-            belowBarData: BarAreaData(show: true, color: _primaryBlack.withValues(alpha: 0.05)),
+            shadow: Shadow(
+              color: _primaryBlack.withValues(alpha: 0.18),
+              blurRadius: 10,
+            ),
+            belowBarData: BarAreaData(
+              show: true,
+              color: _primaryBlack.withValues(alpha: 0.08),
+            ),
           ),
         ],
       ),
@@ -188,8 +276,12 @@ class _BPBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (logs.isEmpty) return Center(child: Text('No data', style: TextStyle(color: _textMuted)));
-    
+    if (logs.isEmpty) {
+      return Center(
+        child: Text('No data', style: TextStyle(color: _textMuted)),
+      );
+    }
+
     final items = logs.asMap().entries.map((e) {
       final p = e.value.value.split('/');
       final sys = double.tryParse(p[0]) ?? 0.0;
@@ -197,8 +289,18 @@ class _BPBarChart extends StatelessWidget {
       return BarChartGroupData(
         x: e.key,
         barRods: [
-          BarChartRodData(toY: sys, color: _primaryBlack, width: 8, borderRadius: BorderRadius.circular(2)),
-          BarChartRodData(toY: dia, color: _tanButton, width: 8, borderRadius: BorderRadius.circular(2)),
+          BarChartRodData(
+            toY: sys,
+            color: _primaryBlack,
+            width: 8,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          BarChartRodData(
+            toY: dia,
+            color: _tanButtonLifted,
+            width: 8,
+            borderRadius: BorderRadius.circular(4),
+          ),
         ],
       );
     }).toList();
@@ -221,7 +323,12 @@ class _SegmentedPeriod extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    decoration: BoxDecoration(color: _creamCard, borderRadius: BorderRadius.circular(12)),
+    decoration: BoxDecoration(
+      color: _creamCardTop,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: _surfaceBorder),
+      boxShadow: AppGlobals.softShadow,
+    ),
     child: Row(
       children: _Period.values.map((p) {
         final sel = p == value;
@@ -230,9 +337,28 @@ class _SegmentedPeriod extends StatelessWidget {
             onTap: () => onChanged(p),
             child: Container(
               padding: EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(color: sel ? _primaryBlack : Colors.transparent, borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(
+                color: sel ? _primaryBlack : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: sel
+                    ? [
+                        BoxShadow(
+                          color: _primaryBlack.withValues(alpha: 0.18),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ]
+                    : null,
+              ),
               alignment: Alignment.center,
-              child: Text(p.name.toUpperCase(), style: TextStyle(color: sel ? _creamBg : _textMuted, fontSize: 12, fontWeight: FontWeight.bold)),
+              child: Text(
+                p.name.toUpperCase(),
+                style: TextStyle(
+                  color: sel ? _creamBg : _textMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         );
@@ -248,21 +374,79 @@ class _VitalRowCard extends StatelessWidget {
   final String subtitle;
   final String statusLabel;
   final Color statusColor;
-  const _VitalRowCard({required this.tileColor, required this.tileIcon, required this.title, required this.subtitle, required this.statusLabel, required this.statusColor});
+  const _VitalRowCard({
+    required this.tileColor,
+    required this.tileIcon,
+    required this.title,
+    required this.subtitle,
+    required this.statusLabel,
+    required this.statusColor,
+  });
 
   @override
   Widget build(BuildContext context) => Container(
     padding: EdgeInsets.all(16),
-    decoration: BoxDecoration(color: _creamCard, borderRadius: BorderRadius.circular(16)),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [_creamCardTop, _creamCard],
+      ),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: _surfaceBorder),
+      boxShadow: AppGlobals.softShadow,
+    ),
     child: Row(
       children: [
-        Container(width: 48, height: 48, decoration: BoxDecoration(color: tileColor, borderRadius: BorderRadius.circular(12)), alignment: Alignment.center, child: tileIcon),
+        Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: tileColor,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: tileColor.withValues(alpha: 0.28),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          alignment: Alignment.center,
+          child: tileIcon,
+        ),
         SizedBox(width: 16),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title, style: TextStyle(color: _textMain, fontWeight: FontWeight.bold, fontSize: 16)),
-          Text(subtitle, style: TextStyle(color: _textMuted, fontSize: 14)),
-        ])),
-        Container(padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: statusColor, borderRadius: BorderRadius.circular(6)), child: Text(statusLabel, style: TextStyle(color: _creamBg, fontSize: 10, fontWeight: FontWeight.bold))),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: _textMain,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              Text(subtitle, style: TextStyle(color: _textMuted, fontSize: 14)),
+            ],
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: statusColor,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            statusLabel,
+            style: TextStyle(
+              color: _creamBg,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ],
     ),
   );

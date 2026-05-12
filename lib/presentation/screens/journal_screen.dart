@@ -5,12 +5,16 @@ import '../providers/journal_provider.dart';
 
 Color get _creamBg => AppGlobals.creamBg;
 Color get _creamCard => AppGlobals.creamCard;
+Color get _creamCardTop => AppGlobals.creamCardTop;
 Color get _tanButton => AppGlobals.tanButton;
+Color get _tanButtonLifted => AppGlobals.tanButtonLifted;
 Color get _textMain => AppGlobals.textMain;
 Color get _textMuted => AppGlobals.textMuted;
 Color get _primaryBlack => AppGlobals.primaryBlack;
 Color get _vitalSuccess => AppGlobals.vitalSuccess;
 Color get _dangerRed => AppGlobals.dangerRed;
+Color get _surfaceBorder => AppGlobals.surfaceBorder;
+Color get _glowGold => AppGlobals.glowGold;
 
 class JournalScreen extends StatelessWidget {
   const JournalScreen({super.key});
@@ -24,61 +28,72 @@ class JournalScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         backgroundColor: _primaryBlack,
         foregroundColor: _creamBg,
+        elevation: 10,
+        highlightElevation: 14,
         onPressed: () => _openEditor(context),
         child: Icon(Icons.add),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(16, 24, 16, 96),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Journal',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: _textMain,
+      body: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: const Alignment(0.7, -0.9),
+            radius: 1.2,
+            colors: [_glowGold, _creamBg],
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(16, 24, 16, 96),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Journal',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: _textMain,
+                ),
               ),
-            ),
-            Text(
-              'Personal health observations',
-              style: TextStyle(color: _textMuted, fontSize: 14),
-            ),
-            SizedBox(height: 24),
-            if (entries.isEmpty)
-              const _EmptyState()
-            else
-              Column(
-                children: [
-                  for (var i = 0; i < entries.length; i++) ...[
-                    Dismissible(
-                      key: Key(entries[i].id),
-                      direction: DismissDirection.endToStart,
-                      onDismissed: (_) {
-                        context.read<JournalProvider>().remove(entries[i].id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Entry deleted.'),
-                            backgroundColor: _dangerRed,
+              Text(
+                'Personal health observations',
+                style: TextStyle(color: _textMuted, fontSize: 14),
+              ),
+              SizedBox(height: 24),
+              if (entries.isEmpty)
+                const _EmptyState()
+              else
+                Column(
+                  children: [
+                    for (var i = 0; i < entries.length; i++) ...[
+                      Dismissible(
+                        key: Key(entries[i].id),
+                        direction: DismissDirection.endToStart,
+                        onDismissed: (_) {
+                          context.read<JournalProvider>().remove(entries[i].id);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Entry deleted.'),
+                              backgroundColor: _dangerRed,
+                            ),
+                          );
+                        },
+                        background: Container(
+                          alignment: Alignment.centerRight,
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          decoration: BoxDecoration(
+                            color: _dangerRed,
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        );
-                      },
-                      background: Container(
-                        alignment: Alignment.centerRight,
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(
-                          color: _dangerRed,
-                          borderRadius: BorderRadius.circular(12),
+                          child: Icon(Icons.delete_outline, color: _creamBg),
                         ),
-                        child: Icon(Icons.delete_outline, color: _creamBg),
+                        child: _EntryCard(entry: entries[i]),
                       ),
-                      child: _EntryCard(entry: entries[i]),
-                    ),
-                    if (i != entries.length - 1) SizedBox(height: 12),
+                      if (i != entries.length - 1) SizedBox(height: 12),
+                    ],
                   ],
-                ],
-              ),
-          ],
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -97,32 +112,38 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          color: _creamCard,
-          borderRadius: BorderRadius.circular(12),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [_creamCardTop, _creamCard],
+      ),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: _surfaceBorder),
+      boxShadow: AppGlobals.softShadow,
+    ),
+    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+    child: Column(
+      children: [
+        Text('📝', style: TextStyle(fontSize: 48)),
+        SizedBox(height: 12),
+        Text(
+          'No journal entries yet',
+          style: TextStyle(
+            color: _textMain,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 40),
-        child: Column(
-          children: [
-            Text('📝', style: TextStyle(fontSize: 48)),
-            SizedBox(height: 12),
-            Text(
-              'No journal entries yet',
-              style: TextStyle(
-                color: _textMain,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 6),
-            Text(
-              'Tap the + button to jot down your first note.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: _textMuted, fontSize: 14),
-            ),
-          ],
+        SizedBox(height: 6),
+        Text(
+          'Tap the + button to jot down your first note.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: _textMuted, fontSize: 14),
         ),
-      );
+      ],
+    ),
+  );
 }
 
 class _EntryCard extends StatelessWidget {
@@ -134,8 +155,14 @@ class _EntryCard extends StatelessWidget {
     final edited = entry.updatedAt.difference(entry.createdAt).inMinutes > 1;
     return Container(
       decoration: BoxDecoration(
-        color: _creamCard,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [_creamCardTop, _creamCard],
+        ),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _surfaceBorder),
+        boxShadow: AppGlobals.softShadow,
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -155,12 +182,22 @@ class _EntryCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: _tanButton,
+                      color: _tanButtonLifted,
                       borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _primaryBlack.withValues(alpha: 0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
                     ),
                     alignment: Alignment.center,
-                    child: Icon(Icons.edit_outlined,
-                        color: _primaryBlack, size: 20),
+                    child: Icon(
+                      Icons.edit_outlined,
+                      color: _primaryBlack,
+                      size: 20,
+                    ),
                   ),
                   SizedBox(width: 12),
                   Expanded(
@@ -182,16 +219,18 @@ class _EntryCard extends StatelessWidget {
                           edited
                               ? 'Updated ${_fmt(entry.updatedAt)}'
                               : _fmt(entry.createdAt),
-                          style: TextStyle(
-                              color: _textMuted, fontSize: 12),
+                          style: TextStyle(color: _textMuted, fontSize: 12),
                         ),
                       ],
                     ),
                   ),
                   IconButton(
                     onPressed: () => _confirmDelete(context),
-                    icon: Icon(Icons.delete_outline,
-                        color: _dangerRed, size: 20),
+                    icon: Icon(
+                      Icons.delete_outline,
+                      color: _dangerRed,
+                      size: 20,
+                    ),
                     tooltip: 'Delete',
                   ),
                 ],
@@ -217,9 +256,10 @@ class _EntryCard extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: _creamCard,
-        title: Text('Delete entry?',
-            style:
-                TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
+        title: Text(
+          'Delete entry?',
+          style: TextStyle(color: _textMain, fontWeight: FontWeight.bold),
+        ),
         content: Text(
           'Delete "${entry.title.isEmpty ? 'Untitled' : entry.title}" permanently?',
           style: TextStyle(color: _textMuted),
@@ -244,12 +284,20 @@ class _EntryCard extends StatelessWidget {
 
   static String _fmt(DateTime d) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
-    final hh = d.hour == 0
-        ? 12
-        : (d.hour > 12 ? d.hour - 12 : d.hour);
+    final hh = d.hour == 0 ? 12 : (d.hour > 12 ? d.hour - 12 : d.hour);
     final mm = d.minute.toString().padLeft(2, '0');
     final ampm = d.hour >= 12 ? 'PM' : 'AM';
     return '${months[d.month - 1]} ${d.day}, ${d.year} • $hh:$mm $ampm';
@@ -296,10 +344,14 @@ class _EntryEditorDialogState extends State<_EntryEditorDialog> {
     }
     if (!mounted) return;
     Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: _vitalSuccess,
-      content: Text(widget.existing == null ? 'Entry saved.' : 'Entry updated.'),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: _vitalSuccess,
+        content: Text(
+          widget.existing == null ? 'Entry saved.' : 'Entry updated.',
+        ),
+      ),
+    );
   }
 
   @override
@@ -307,9 +359,10 @@ class _EntryEditorDialogState extends State<_EntryEditorDialog> {
     final editing = widget.existing != null;
     return AlertDialog(
       backgroundColor: _creamCard,
-      title: Text(editing ? 'Edit Entry' : 'New Entry',
-          style:
-              TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
+      title: Text(
+        editing ? 'Edit Entry' : 'New Entry',
+        style: TextStyle(color: _textMain, fontWeight: FontWeight.bold),
+      ),
       content: SizedBox(
         width: 420,
         child: Column(
@@ -338,10 +391,14 @@ class _EntryEditorDialogState extends State<_EntryEditorDialog> {
                   height: 18,
                   width: 18,
                   child: CircularProgressIndicator(
-                      strokeWidth: 2, color: _creamBg),
+                    strokeWidth: 2,
+                    color: _creamBg,
+                  ),
                 )
-              : Text(editing ? 'Update' : 'Save',
-                  style: TextStyle(color: _creamBg)),
+              : Text(
+                  editing ? 'Update' : 'Save',
+                  style: TextStyle(color: _creamBg),
+                ),
         ),
       ],
     );
@@ -352,22 +409,21 @@ Widget _field({
   required TextEditingController controller,
   required String label,
   int maxLines = 1,
-}) =>
-    TextField(
-      controller: controller,
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: _textMuted),
-        alignLabelWithHint: maxLines > 1,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _tanButton),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _primaryBlack),
-        ),
-      ),
-      style: TextStyle(color: _textMain),
-    );
+}) => TextField(
+  controller: controller,
+  maxLines: maxLines,
+  decoration: InputDecoration(
+    labelText: label,
+    labelStyle: TextStyle(color: _textMuted),
+    alignLabelWithHint: maxLines > 1,
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: _tanButton),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: _primaryBlack),
+    ),
+  ),
+  style: TextStyle(color: _textMain),
+);

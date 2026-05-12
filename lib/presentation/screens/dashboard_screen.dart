@@ -16,11 +16,16 @@ import '../../core/clinical_report_service.dart';
 // ---------------------------------------------------------------------------
 Color get _creamBg => AppGlobals.creamBg;
 Color get _creamCard => AppGlobals.creamCard;
+Color get _creamCardTop => AppGlobals.creamCardTop;
 Color get _tanButton => AppGlobals.tanButton;
+Color get _tanButtonLifted => AppGlobals.tanButtonLifted;
 Color get _textMain => AppGlobals.textMain;
 Color get _textMuted => AppGlobals.textMuted;
 Color get _primaryBlack => AppGlobals.primaryBlack;
 Color get _vitalSuccess => AppGlobals.vitalSuccess;
+Color get _surfaceBorder => AppGlobals.surfaceBorder;
+Color get _glowGold => AppGlobals.glowGold;
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -54,6 +59,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _dialogButton(
               'Log Weight Only',
               fill: _tanButton,
+              fg: _textMain,
               onTap: () {
                 Navigator.pop(ctx);
                 _showAddLog(initialType: 'WEIGHT', both: false);
@@ -63,6 +69,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _dialogButton(
               'Log BP Only',
               fill: _tanButton,
+              fg: _textMain,
               onTap: () {
                 Navigator.pop(ctx);
                 _showAddLog(initialType: 'BLOOD_PRESSURE', both: false);
@@ -101,8 +108,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void _showMoodDialog() =>
       showDialog(context: context, builder: (_) => const _MoodLogDialog());
 
-  void _showAddMedDialog() =>
-      showDialog(context: context, builder: (_) => const _AddMedicationDialog());
+  void _showAddMedDialog() => showDialog(
+    context: context,
+    builder: (_) => const _AddMedicationDialog(),
+  );
 
   void _showHrDialog() =>
       showDialog(context: context, builder: (_) => const _HeartRateDialog());
@@ -111,9 +120,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       showDialog(context: context, builder: (_) => const _AppointmentDialog());
 
   void _showMonthlySummary(List<LogEntry> logs) => showDialog(
-        context: context,
-        builder: (_) => _MonthlySummaryDialog(logs: logs),
-      );
+    context: context,
+    builder: (_) => _MonthlySummaryDialog(logs: logs),
+  );
 
   void _logout() async {
     await context.read<AppConfigProvider>().reset();
@@ -122,7 +131,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final logs = context.watch<HealthDataProvider>().logs;
-    final userName = context.select<AppConfigProvider, String>((p) => p.userName);
+    final userName = context.select<AppConfigProvider, String>(
+      (p) => p.userName,
+    );
 
     return Scaffold(
       backgroundColor: _creamBg,
@@ -131,7 +142,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         onChanged: (i) => setState(() => _tab = i),
       ),
       body: SafeArea(
-        child: _buildTab(logs, userName),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              center: const Alignment(-0.85, -0.9),
+              radius: 1.25,
+              colors: [_glowGold, _creamBg],
+            ),
+          ),
+          child: _buildTab(logs, userName),
+        ),
       ),
     );
   }
@@ -214,19 +234,25 @@ class _HomeTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final todayStr = _formatDate(DateTime.now());
     final todayMidnight = DateTime.now().copyWith(
-      hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+      microsecond: 0,
     );
     final todayMood = logs
         .where((l) => l.logType == 'MOOD' && l.timestamp.isAfter(todayMidnight))
         .fold<LogEntry?>(null, (prev, l) {
-      if (prev == null || l.timestamp.isAfter(prev.timestamp)) return l;
-      return prev;
-    });
+          if (prev == null || l.timestamp.isAfter(prev.timestamp)) return l;
+          return prev;
+        });
     final latestMed = _latest(logs, 'MEDICATION');
 
-    final recentBp = logs.where((l) =>
-        l.logType == 'BLOOD_PRESSURE' &&
-        DateTime.now().difference(l.timestamp).inDays < 3);
+    final recentBp = logs.where(
+      (l) =>
+          l.logType == 'BLOOD_PRESSURE' &&
+          DateTime.now().difference(l.timestamp).inDays < 3,
+    );
     final elevatedBpDays = recentBp
         .map((l) => int.tryParse(l.value.split('/').first))
         .where((v) => v != null && v >= 130)
@@ -265,10 +291,18 @@ class _HomeTab extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButton(
-                icon: Icon(Icons.exit_to_app, color: _textMuted),
-                onPressed: onLogout,
-                tooltip: 'Logout',
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: _creamCardTop,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: _surfaceBorder),
+                  boxShadow: AppGlobals.softShadow,
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.exit_to_app, color: _textMuted),
+                  onPressed: onLogout,
+                  tooltip: 'Logout',
+                ),
               ),
             ],
           ),
@@ -277,8 +311,7 @@ class _HomeTab extends StatelessWidget {
             _alertCard(
               emoji: '⚠️',
               title: 'BP Alert',
-              subtitle:
-                  'Systolic ≥130 in $elevatedBpDays of last 3 logs',
+              subtitle: 'Systolic ≥130 in $elevatedBpDays of last 3 logs',
               bg: const Color(0xFF3D1F1F),
               titleColor: const Color(0xFFFF6B6B),
               subtitleColor: const Color(0xFFFFAAAA),
@@ -330,17 +363,19 @@ class _HomeTab extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Mood',
-                              style: TextStyle(
-                                  color: _textMain,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16)),
+                          Text(
+                            'Mood',
+                            style: TextStyle(
+                              color: _textMain,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
                           Text(
                             todayMood != null
                                 ? 'Today: ${todayMood.value}'
                                 : 'No mood logged today',
-                            style: TextStyle(
-                                color: _textMuted, fontSize: 14),
+                            style: TextStyle(color: _textMuted, fontSize: 14),
                           ),
                         ],
                       ),
@@ -370,11 +405,14 @@ class _HomeTab extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
-                                  Text('Active Prescriptions',
-                                      style: TextStyle(
-                                          color: _textMain,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 16)),
+                                  Text(
+                                    'Active Prescriptions',
+                                    style: TextStyle(
+                                      color: _textMain,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                                   SizedBox(width: 8),
                                   _activeBadge(logs),
                                 ],
@@ -384,7 +422,9 @@ class _HomeTab extends StatelessWidget {
                                     ? '${latestMed.value} • ${latestMed.notes ?? ""}'
                                     : 'Prenatal Vitamin • 8:00 AM',
                                 style: TextStyle(
-                                    color: _textMuted, fontSize: 14),
+                                  color: _textMuted,
+                                  fontSize: 14,
+                                ),
                               ),
                             ],
                           ),
@@ -403,8 +443,12 @@ class _HomeTab extends StatelessWidget {
                           ),
                         ),
                         SizedBox(width: 8),
-                        _solidBtn('+ Add',
-                            onTap: onAddMed, fill: _tanButton, fg: _textMain),
+                        _solidBtn(
+                          '+ Add',
+                          onTap: onAddMed,
+                          fill: _tanButton,
+                          fg: _textMain,
+                        ),
                       ],
                     ),
                   ],
@@ -450,17 +494,19 @@ class _HomeTab extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Doctor Visits',
-                              style: TextStyle(
-                                  color: _textMain,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16)),
+                          Text(
+                            'Doctor Visits',
+                            style: TextStyle(
+                              color: _textMain,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
                           Text(
                             nextAppointment != null
                                 ? '${nextAppointment.value} • ${nextAppointment.notes ?? ""}'
                                 : 'No upcoming visits',
-                            style: TextStyle(
-                                color: _textMuted, fontSize: 14),
+                            style: TextStyle(color: _textMuted, fontSize: 14),
                           ),
                         ],
                       ),
@@ -485,55 +531,73 @@ class _HomeTab extends StatelessWidget {
     required Color titleColor,
     required Color subtitleColor,
     required VoidCallback onDismiss,
-  }) =>
-      Container(
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Text(emoji, style: TextStyle(fontSize: 24)),
-            SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title,
-                      style: TextStyle(
-                          color: titleColor, fontWeight: FontWeight.bold)),
-                  Text(subtitle,
-                      style:
-                          TextStyle(color: subtitleColor, fontSize: 13)),
-                ],
+  }) => Container(
+    decoration: BoxDecoration(
+      color: bg,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: titleColor.withValues(alpha: 0.2)),
+      boxShadow: AppGlobals.softShadow,
+    ),
+    padding: EdgeInsets.all(16),
+    child: Row(
+      children: [
+        Text(emoji, style: TextStyle(fontSize: 24)),
+        SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: titleColor,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            IconButton(
-              onPressed: onDismiss,
-              icon: Icon(Icons.close, color: titleColor),
-            ),
-          ],
+              Text(
+                subtitle,
+                style: TextStyle(color: subtitleColor, fontSize: 13),
+              ),
+            ],
+          ),
         ),
-      );
+        IconButton(
+          onPressed: onDismiss,
+          icon: Icon(Icons.close, color: titleColor),
+        ),
+      ],
+    ),
+  );
 
   Widget _iconTile(IconData icon) => Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: _primaryBlack,
-          borderRadius: BorderRadius.circular(8),
+    width: 40,
+    height: 40,
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [_primaryBlack, _textMuted],
+      ),
+      borderRadius: BorderRadius.circular(8),
+      boxShadow: [
+        BoxShadow(
+          color: _primaryBlack.withValues(alpha: 0.18),
+          blurRadius: 12,
+          offset: const Offset(0, 6),
         ),
-        child: Icon(icon, color: _creamBg),
-      );
+      ],
+    ),
+    child: Icon(icon, color: _creamBg),
+  );
 
   Widget _activeBadge(List<LogEntry> logs) {
     final medCount = logs.where((l) => l.logType == 'MEDICATION').length;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: _creamBg,
+        color: _tanButtonLifted,
         borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: _surfaceBorder),
       ),
       child: Text(
         '${medCount > 0 ? medCount : 1} Active',
@@ -556,12 +620,16 @@ class _HomeTab extends StatelessWidget {
         foregroundColor: fg ?? _creamBg,
         disabledBackgroundColor: fill ?? _primaryBlack,
         disabledForegroundColor: fg ?? _creamBg,
+        elevation: 8,
+        shadowColor: (fill ?? _primaryBlack).withValues(alpha: 0.26),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       ),
       child: Text(
         label,
-        style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal),
+        style: TextStyle(
+          fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+        ),
       ),
     );
   }
@@ -570,23 +638,22 @@ class _HomeTab extends StatelessWidget {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
-  }) =>
-      InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            children: [
-              Icon(icon, color: _textMuted),
-              SizedBox(width: 16),
-              Expanded(
-                  child:
-                      Text(label, style: TextStyle(color: _textMain))),
-              Icon(Icons.keyboard_arrow_right, color: _textMuted),
-            ],
+  }) => InkWell(
+    onTap: onTap,
+    child: Padding(
+      padding: EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, color: _textMuted),
+          SizedBox(width: 16),
+          Expanded(
+            child: Text(label, style: TextStyle(color: _textMain)),
           ),
-        ),
-      );
+          Icon(Icons.keyboard_arrow_right, color: _textMuted),
+        ],
+      ),
+    ),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -626,12 +693,18 @@ class _CardContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          color: _creamCard,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: child,
-      );
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [_creamCardTop, _creamCard],
+      ),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: _surfaceBorder),
+      boxShadow: AppGlobals.softShadow,
+    ),
+    child: child,
+  );
 }
 
 class _MetricCard extends StatelessWidget {
@@ -648,43 +721,66 @@ class _MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => _CardContainer(
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(icon, color: _primaryBlack),
-                  Text(title,
-                      style: TextStyle(
-                          color: _textMuted,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold)),
-                ],
-              ),
-              SizedBox(height: 16),
-              Text(value,
-                  style: TextStyle(color: _textMain, fontSize: 14)),
-              SizedBox(height: 16),
-              OutlinedButton(
-                onPressed: onLog,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: _textMain,
-                  side: BorderSide(color: _tanButton),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  minimumSize: const Size.fromHeight(36),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onLog,
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: _tanButtonLifted,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: _surfaceBorder),
+                  ),
+                  child: Icon(icon, color: _primaryBlack, size: 20),
                 ),
-                child: Text('Log Entry',
-                    style: TextStyle(fontSize: 12)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: _textMuted,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            Text(
+              value,
+              style: TextStyle(
+                color: _textMain,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
               ),
-            ],
-          ),
+            ),
+            SizedBox(height: 16),
+            OutlinedButton(
+              onPressed: onLog,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _textMain,
+                backgroundColor: _creamCardTop,
+                side: BorderSide(color: _surfaceBorder),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                minimumSize: const Size.fromHeight(36),
+              ),
+              child: Text('Log Entry', style: TextStyle(fontSize: 12)),
+            ),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class _BottomNav extends StatelessWidget {
@@ -693,40 +789,56 @@ class _BottomNav extends StatelessWidget {
   const _BottomNav({required this.current, required this.onChanged});
 
   @override
-  Widget build(BuildContext context) => NavigationBar(
-        selectedIndex: current,
-        onDestinationSelected: onChanged,
-        backgroundColor: _creamCard,
-        indicatorColor: _tanButton,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        destinations: [
-          NavigationDestination(
-              icon: Icon(Icons.home, color: _textMuted),
-              selectedIcon: Icon(Icons.home, color: _primaryBlack),
-              label: 'Home'),
-          NavigationDestination(
-              icon: Icon(Icons.add_circle_outline, color: _textMuted),
-              selectedIcon:
-                  Icon(Icons.add_circle_outline, color: _primaryBlack),
-              label: 'Meds'),
-          NavigationDestination(
-              icon: Icon(Icons.calendar_today, color: _textMuted),
-              selectedIcon:
-                  Icon(Icons.calendar_today, color: _primaryBlack),
-              label: 'Trends'),
-          NavigationDestination(
-              icon: Icon(Icons.edit_outlined, color: _textMuted),
-              selectedIcon: Icon(Icons.edit_outlined, color: _primaryBlack),
-              label: 'Journal'),
-          NavigationDestination(
-              icon: Icon(Icons.settings_outlined, color: _textMuted),
-              selectedIcon:
-                  Icon(Icons.settings_outlined, color: _primaryBlack),
-              label: 'Settings'),
-        ],
-      );
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      color: _creamCardTop,
+      border: Border(top: BorderSide(color: _surfaceBorder)),
+      boxShadow: [
+        BoxShadow(
+          color: _primaryBlack.withValues(alpha: 0.12),
+          blurRadius: 28,
+          offset: const Offset(0, -12),
+        ),
+      ],
+    ),
+    child: NavigationBar(
+      selectedIndex: current,
+      onDestinationSelected: onChanged,
+      backgroundColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      indicatorColor: _tanButtonLifted,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      destinations: [
+        NavigationDestination(
+          icon: Icon(Icons.home, color: _textMuted),
+          selectedIcon: Icon(Icons.home, color: _primaryBlack),
+          label: 'Home',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.add_circle_outline, color: _textMuted),
+          selectedIcon: Icon(Icons.add_circle_outline, color: _primaryBlack),
+          label: 'Meds',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.calendar_today, color: _textMuted),
+          selectedIcon: Icon(Icons.calendar_today, color: _primaryBlack),
+          label: 'Trends',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.edit_outlined, color: _textMuted),
+          selectedIcon: Icon(Icons.edit_outlined, color: _primaryBlack),
+          label: 'Journal',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.settings_outlined, color: _textMuted),
+          selectedIcon: Icon(Icons.settings_outlined, color: _primaryBlack),
+          label: 'Settings',
+        ),
+      ],
+    ),
+  );
 }
-
 
 // ---------------------------------------------------------------------------
 // DIALOGS
@@ -781,10 +893,12 @@ class _AddLogDialogState extends State<_AddLogDialog> {
     if (!mounted) return;
     setState(() => _saving = false);
     Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: ok ? _vitalSuccess : Colors.red,
-      content: Text(ok ? 'Saved to Google Sheet.' : 'Save failed.'),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: ok ? _vitalSuccess : Colors.red,
+        content: Text(ok ? 'Saved to Google Sheet.' : 'Save failed.'),
+      ),
+    );
   }
 
   @override
@@ -815,9 +929,12 @@ class _AddLogDialogState extends State<_AddLogDialog> {
               label: 'Weight (kg)',
               inputFormatters: [
                 FilteringTextInputFormatter.allow(
-                    RegExp(r'^\d{0,3}(\.\d{0,2})?')),
+                  RegExp(r'^\d{0,3}(\.\d{0,2})?'),
+                ),
               ],
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
             ),
           if (showBp) ...[
             SizedBox(height: 8),
@@ -836,11 +953,14 @@ class _AddLogDialogState extends State<_AddLogDialog> {
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8),
-                  child: Text('/',
-                      style: TextStyle(
-                          color: _textMuted,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w500)),
+                  child: Text(
+                    '/',
+                    style: TextStyle(
+                      color: _textMuted,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
                 Expanded(
                   child: _field(
@@ -872,11 +992,17 @@ class _AddLogDialogState extends State<_AddLogDialog> {
                   height: 18,
                   width: 18,
                   child: CircularProgressIndicator(
-                      strokeWidth: 2, color: _primaryBlack),
+                    strokeWidth: 2,
+                    color: _primaryBlack,
+                  ),
                 )
-              : Text('Save',
+              : Text(
+                  'Save',
                   style: TextStyle(
-                      color: _primaryBlack, fontWeight: FontWeight.bold)),
+                    color: _primaryBlack,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
         ),
       ],
     );
@@ -892,13 +1018,7 @@ class _MoodLogDialog extends StatefulWidget {
 class _MoodLogDialogState extends State<_MoodLogDialog> {
   String _selected = '';
   final _notes = TextEditingController();
-  static const _moods = [
-    '😄 Great',
-    '🙂 Good',
-    '😐 Okay',
-    '😔 Low',
-    '😢 Bad'
-  ];
+  static const _moods = ['😄 Great', '🙂 Good', '😐 Okay', '😔 Low', '😢 Bad'];
 
   @override
   void dispose() {
@@ -910,8 +1030,10 @@ class _MoodLogDialogState extends State<_MoodLogDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: _creamCard,
-      title: Text('How are you feeling?',
-          style: TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
+      title: Text(
+        'How are you feeling?',
+        style: TextStyle(color: _textMain, fontWeight: FontWeight.bold),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -931,11 +1053,11 @@ class _MoodLogDialogState extends State<_MoodLogDialog> {
                         backgroundColor: selected ? _primaryBlack : _tanButton,
                         foregroundColor: selected ? _creamBg : _textMain,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         padding: EdgeInsets.all(4),
                       ),
-                      child: Text(emoji,
-                          style: TextStyle(fontSize: 20)),
+                      child: Text(emoji, style: TextStyle(fontSize: 20)),
                     ),
                   ),
                 ),
@@ -944,8 +1066,10 @@ class _MoodLogDialogState extends State<_MoodLogDialog> {
           ),
           if (_selected.isNotEmpty) ...[
             SizedBox(height: 12),
-            Text('Selected: $_selected',
-                style: TextStyle(color: _textMuted, fontSize: 14)),
+            Text(
+              'Selected: $_selected',
+              style: TextStyle(color: _textMuted, fontSize: 14),
+            ),
           ],
           SizedBox(height: 12),
           _field(controller: _notes, label: 'Notes (optional)'),
@@ -962,13 +1086,13 @@ class _MoodLogDialogState extends State<_MoodLogDialog> {
               ? null
               : () {
                   context.read<HealthDataProvider>().addLog(
-                        logType: 'MOOD',
-                        value: _selected,
-                        unit: '',
-                        notes: _notes.text.trim().isEmpty
-                            ? null
-                            : _notes.text.trim(),
-                      );
+                    logType: 'MOOD',
+                    value: _selected,
+                    unit: '',
+                    notes: _notes.text.trim().isEmpty
+                        ? null
+                        : _notes.text.trim(),
+                  );
                   Navigator.pop(context);
                 },
           child: Text('Save', style: TextStyle(color: _creamBg)),
@@ -999,41 +1123,43 @@ class _AddMedicationDialogState extends State<_AddMedicationDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        backgroundColor: _creamCard,
-        title: Text('Add Medication',
-            style: TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _field(controller: _name, label: 'Medication Name'),
-            SizedBox(height: 12),
-            _field(controller: _dosage, label: 'Dosage (e.g. 1 tablet)'),
-            SizedBox(height: 12),
-            _field(controller: _time, label: 'Time (e.g. 8:00 AM)'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: _textMuted)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack),
-            onPressed: () {
-              if (_name.text.trim().isEmpty) return;
-              context.read<HealthDataProvider>().addLog(
-                    logType: 'MEDICATION',
-                    value: _name.text.trim(),
-                    unit: 'dose',
-                    notes: '${_dosage.text.trim()} • ${_time.text.trim()}',
-                  );
-              Navigator.pop(context);
-            },
-            child: Text('Save', style: TextStyle(color: _creamBg)),
-          ),
-        ],
-      );
+    backgroundColor: _creamCard,
+    title: Text(
+      'Add Medication',
+      style: TextStyle(color: _textMain, fontWeight: FontWeight.bold),
+    ),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _field(controller: _name, label: 'Medication Name'),
+        SizedBox(height: 12),
+        _field(controller: _dosage, label: 'Dosage (e.g. 1 tablet)'),
+        SizedBox(height: 12),
+        _field(controller: _time, label: 'Time (e.g. 8:00 AM)'),
+      ],
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: Text('Cancel', style: TextStyle(color: _textMuted)),
+      ),
+      ElevatedButton(
+        style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack),
+        onPressed: () {
+          if (_name.text.trim().isEmpty) return;
+          context.read<HealthDataProvider>().addLog(
+            logType: 'MEDICATION',
+            value: _name.text.trim(),
+            unit: 'dose',
+            notes: '${_dosage.text.trim()} • ${_time.text.trim()}',
+          );
+          Navigator.pop(context);
+        },
+        child: Text('Save', style: TextStyle(color: _creamBg)),
+      ),
+    ],
+  );
 }
 
 class _HeartRateDialog extends StatefulWidget {
@@ -1064,53 +1190,59 @@ class _HeartRateDialogState extends State<_HeartRateDialog> {
     if (!mounted) return;
     setState(() => _saving = false);
     Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: ok ? _vitalSuccess : Colors.red,
-      content: Text(ok ? 'Saved to Google Sheet.' : 'Save failed.'),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: ok ? _vitalSuccess : Colors.red,
+        content: Text(ok ? 'Saved to Google Sheet.' : 'Save failed.'),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        backgroundColor: _creamCard,
-        title: Text('Log Heart Rate',
-            style: TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _field(
-              controller: _bpm,
-              label: 'BPM (40-220)',
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(3),
-              ],
-            ),
-            SizedBox(height: 12),
-            _field(controller: _notes, label: 'Notes (optional)'),
+    backgroundColor: _creamCard,
+    title: Text(
+      'Log Heart Rate',
+      style: TextStyle(color: _textMain, fontWeight: FontWeight.bold),
+    ),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _field(
+          controller: _bpm,
+          label: 'BPM (40-220)',
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(3),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: _saving ? null : () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: _textMuted)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack),
-            onPressed: _saving ? null : _save,
-            child: _saving
-                ? SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: _creamBg),
-                  )
-                : Text('Save', style: TextStyle(color: _creamBg)),
-          ),
-        ],
-      );
+        SizedBox(height: 12),
+        _field(controller: _notes, label: 'Notes (optional)'),
+      ],
+    ),
+    actions: [
+      TextButton(
+        onPressed: _saving ? null : () => Navigator.pop(context),
+        child: Text('Cancel', style: TextStyle(color: _textMuted)),
+      ),
+      ElevatedButton(
+        style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack),
+        onPressed: _saving ? null : _save,
+        child: _saving
+            ? SizedBox(
+                height: 18,
+                width: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: _creamBg,
+                ),
+              )
+            : Text('Save', style: TextStyle(color: _creamBg)),
+      ),
+    ],
+  );
 }
 
 class _AppointmentDialog extends StatefulWidget {
@@ -1134,42 +1266,43 @@ class _AppointmentDialogState extends State<_AppointmentDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        backgroundColor: _creamCard,
-        title: Text('Add Appointment',
-            style: TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _field(controller: _doctor, label: 'Doctor Name'),
-            SizedBox(height: 12),
-            _field(controller: _date, label: 'Date (e.g. Mar 25, 2026)'),
-            SizedBox(height: 12),
-            _field(controller: _notes, label: 'Notes (optional)'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: _textMuted)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack),
-            onPressed: () {
-              if (_doctor.text.trim().isEmpty) return;
-              context.read<HealthDataProvider>().addLog(
-                    logType: 'APPOINTMENT',
-                    value: _doctor.text.trim(),
-                    unit: 'visit',
-                    notes:
-                        '${_date.text.trim()} • ${_notes.text.trim()}',
-                  );
-              Navigator.pop(context);
-            },
-            child: Text('Save', style: TextStyle(color: _creamBg)),
-          ),
-        ],
-      );
+    backgroundColor: _creamCard,
+    title: Text(
+      'Add Appointment',
+      style: TextStyle(color: _textMain, fontWeight: FontWeight.bold),
+    ),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _field(controller: _doctor, label: 'Doctor Name'),
+        SizedBox(height: 12),
+        _field(controller: _date, label: 'Date (e.g. Mar 25, 2026)'),
+        SizedBox(height: 12),
+        _field(controller: _notes, label: 'Notes (optional)'),
+      ],
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: Text('Cancel', style: TextStyle(color: _textMuted)),
+      ),
+      ElevatedButton(
+        style: ElevatedButton.styleFrom(backgroundColor: _primaryBlack),
+        onPressed: () {
+          if (_doctor.text.trim().isEmpty) return;
+          context.read<HealthDataProvider>().addLog(
+            logType: 'APPOINTMENT',
+            value: _doctor.text.trim(),
+            unit: 'visit',
+            notes: '${_date.text.trim()} • ${_notes.text.trim()}',
+          );
+          Navigator.pop(context);
+        },
+        child: Text('Save', style: TextStyle(color: _creamBg)),
+      ),
+    ],
+  );
 }
 
 class _MonthlySummaryDialog extends StatelessWidget {
@@ -1182,16 +1315,19 @@ class _MonthlySummaryDialog extends StatelessWidget {
     final monthLogs = logs.where((l) => l.timestamp.isAfter(cutoff)).toList();
 
     final weightLogs = monthLogs.where((l) => l.logType == 'WEIGHT').toList();
-    final bpLogs =
-        monthLogs.where((l) => l.logType == 'BLOOD_PRESSURE').toList();
+    final bpLogs = monthLogs
+        .where((l) => l.logType == 'BLOOD_PRESSURE')
+        .toList();
     final moodLogs = monthLogs.where((l) => l.logType == 'MOOD').toList();
 
-    final weightVals =
-        weightLogs.map((l) => double.tryParse(l.value)).whereType<double>().toList();
+    final weightVals = weightLogs
+        .map((l) => double.tryParse(l.value))
+        .whereType<double>()
+        .toList();
     final avgWeight = weightVals.isEmpty
         ? '--'
         : (weightVals.reduce((a, b) => a + b) / weightVals.length)
-            .toStringAsFixed(1);
+              .toStringAsFixed(1);
     final minWeight = weightVals.isEmpty
         ? '--'
         : weightVals.reduce((a, b) => a < b ? a : b).toStringAsFixed(1);
@@ -1213,8 +1349,8 @@ class _MonthlySummaryDialog extends StatelessWidget {
     final avgBp = bpPairs.isEmpty
         ? '--'
         : '${(bpPairs.map((p) => p[0]).reduce((a, b) => a + b) / bpPairs.length).round()}'
-            '/'
-            '${(bpPairs.map((p) => p[1]).reduce((a, b) => a + b) / bpPairs.length).round()}';
+              '/'
+              '${(bpPairs.map((p) => p[1]).reduce((a, b) => a + b) / bpPairs.length).round()}';
 
     final moodGroups = <String, int>{};
     for (final l in moodLogs) {
@@ -1223,8 +1359,10 @@ class _MonthlySummaryDialog extends StatelessWidget {
 
     return AlertDialog(
       backgroundColor: _creamCard,
-      title: Text('Monthly Health Summary',
-          style: TextStyle(color: _textMain, fontWeight: FontWeight.bold)),
+      title: Text(
+        'Monthly Health Summary',
+        style: TextStyle(color: _textMain, fontWeight: FontWeight.bold),
+      ),
       content: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1257,45 +1395,46 @@ class _MonthlySummaryDialog extends StatelessWidget {
 // Helpers
 // ---------------------------------------------------------------------------
 Widget _summaryRow(String label, String value) => Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label,
-              style: TextStyle(color: _textMuted, fontSize: 14)),
-          Text(value,
-              style: TextStyle(
-                  color: _textMain,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14)),
-        ],
+  padding: EdgeInsets.symmetric(vertical: 4),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(label, style: TextStyle(color: _textMuted, fontSize: 14)),
+      Text(
+        value,
+        style: TextStyle(
+          color: _textMain,
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+        ),
       ),
-    );
+    ],
+  ),
+);
 
 Widget _field({
   required TextEditingController controller,
   required String label,
   TextInputType? keyboardType,
   List<TextInputFormatter>? inputFormatters,
-}) =>
-    TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      inputFormatters: inputFormatters,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: _textMuted),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _tanButton),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _primaryBlack),
-        ),
-      ),
-      style: TextStyle(color: _textMain),
-    );
+}) => TextField(
+  controller: controller,
+  keyboardType: keyboardType,
+  inputFormatters: inputFormatters,
+  decoration: InputDecoration(
+    labelText: label,
+    labelStyle: TextStyle(color: _textMuted),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: _tanButton),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: _primaryBlack),
+    ),
+  ),
+  style: TextStyle(color: _textMain),
+);
 
 Widget _dialogButton(
   String label, {
@@ -1305,23 +1444,22 @@ Widget _dialogButton(
   Color? fg,
 
   bool bold = false,
-}) =>
-    SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: fill,
-          foregroundColor: fg,
-          padding: EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8)),
-        ),
-        child: Text(label,
-            style: TextStyle(
-                fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
-      ),
-    );
+}) => SizedBox(
+  width: double.infinity,
+  child: ElevatedButton(
+    onPressed: onTap,
+    style: ElevatedButton.styleFrom(
+      backgroundColor: fill,
+      foregroundColor: fg,
+      padding: EdgeInsets.symmetric(vertical: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    ),
+    child: Text(
+      label,
+      style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal),
+    ),
+  ),
+);
 
 LogEntry? _latest(List<LogEntry> logs, String type) {
   final filtered = logs.where((l) => l.logType == type);
@@ -1337,11 +1475,21 @@ String _formatDate(DateTime d) {
     'Thursday',
     'Friday',
     'Saturday',
-    'Sunday'
+    'Sunday',
   ];
   const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
   return '${weekdays[d.weekday - 1]}, ${months[d.month - 1]} ${d.day}';
 }
