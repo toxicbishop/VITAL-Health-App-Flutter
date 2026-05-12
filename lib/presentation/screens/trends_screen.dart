@@ -149,8 +149,9 @@ class _TrendsScreenState extends State<TrendsScreen> {
               subtitle: hrLogs.isEmpty
                   ? '-- bpm'
                   : '${hrLogs.last.value} bpm (Latest)',
-              statusLabel: 'TRACKED',
-              statusColor: _vitalSuccess,
+              statusLabel: _hrStatusLabel(hrLogs),
+              statusColor: _hrStatusColor(hrLogs),
+              range: _HeartRateRange(logs: hrLogs),
             ),
             SizedBox(height: 32),
           ],
@@ -322,8 +323,10 @@ class _WeightLineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (logs.isEmpty) {
-      return Center(
-        child: Text('No data', style: TextStyle(color: _textMuted)),
+      return _ChartEmptyState(
+        icon: Icons.monitor_weight_outlined,
+        title: 'No weight data yet',
+        subtitle: 'Log weight from Home to start seeing your trend.',
       );
     }
 
@@ -334,7 +337,7 @@ class _WeightLineChart extends StatelessWidget {
     return LineChart(
       LineChartData(
         gridData: FlGridData(show: false),
-        titlesData: FlTitlesData(show: false),
+        titlesData: _bottomDateTitles(logs),
         borderData: FlBorderData(show: false),
         lineBarsData: [
           LineChartBarData(
@@ -366,8 +369,10 @@ class _BPBarChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (logs.isEmpty) {
-      return Center(
-        child: Text('No data', style: TextStyle(color: _textMuted)),
+      return _ChartEmptyState(
+        icon: Icons.favorite_border,
+        title: 'No BP readings yet',
+        subtitle: 'Log blood pressure from Home to compare readings.',
       );
     }
 
@@ -397,9 +402,54 @@ class _BPBarChart extends StatelessWidget {
     return BarChart(
       BarChartData(
         barGroups: items,
-        gridData: FlGridData(show: false),
-        titlesData: FlTitlesData(show: false),
+        maxY: 170,
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: 40,
+          getDrawingHorizontalLine: (value) => FlLine(
+            color: _surfaceBorder.withValues(alpha: 0.5),
+            strokeWidth: 1,
+          ),
+        ),
+        titlesData: _bottomDateTitles(logs),
         borderData: FlBorderData(show: false),
+        extraLinesData: ExtraLinesData(
+          horizontalLines: [
+            HorizontalLine(
+              y: 120,
+              color: _vitalSuccess.withValues(alpha: 0.5),
+              strokeWidth: 1.5,
+              dashArray: [6, 5],
+              label: HorizontalLineLabel(
+                show: true,
+                alignment: Alignment.topRight,
+                style: TextStyle(
+                  color: _vitalSuccess,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                labelResolver: (_) => 'SYS normal',
+              ),
+            ),
+            HorizontalLine(
+              y: 80,
+              color: _tanButtonLifted.withValues(alpha: 0.8),
+              strokeWidth: 1.5,
+              dashArray: [6, 5],
+              label: HorizontalLineLabel(
+                show: true,
+                alignment: Alignment.bottomRight,
+                style: TextStyle(
+                  color: _textMuted,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                labelResolver: (_) => 'DIA normal',
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -463,6 +513,7 @@ class _VitalRowCard extends StatelessWidget {
   final String subtitle;
   final String statusLabel;
   final Color statusColor;
+  final Widget? range;
   const _VitalRowCard({
     required this.tileColor,
     required this.tileIcon,
@@ -470,6 +521,7 @@ class _VitalRowCard extends StatelessWidget {
     required this.subtitle,
     required this.statusLabel,
     required this.statusColor,
+    this.range,
   });
 
   @override
@@ -485,60 +537,249 @@ class _VitalRowCard extends StatelessWidget {
       border: Border.all(color: _surfaceBorder),
       boxShadow: AppGlobals.softShadow,
     ),
-    child: Row(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: tileColor,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: tileColor.withValues(alpha: 0.28),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
+        Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: tileColor,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: tileColor.withValues(alpha: 0.28),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
-            ],
-          ),
-          alignment: Alignment.center,
-          child: tileIcon,
-        ),
-        SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
+              alignment: Alignment.center,
+              child: tileIcon,
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: _textMain,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(color: _textMuted, fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: statusColor,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                statusLabel,
                 style: TextStyle(
-                  color: _textMain,
+                  color: _creamBg,
+                  fontSize: 10,
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
                 ),
               ),
-              Text(subtitle, style: TextStyle(color: _textMuted, fontSize: 14)),
-            ],
+            ),
+          ],
+        ),
+        if (range != null) ...[SizedBox(height: 16), range!],
+      ],
+    ),
+  );
+}
+
+class _HeartRateRange extends StatelessWidget {
+  final List<LogEntry> logs;
+  const _HeartRateRange({required this.logs});
+
+  @override
+  Widget build(BuildContext context) {
+    if (logs.isEmpty) {
+      return Text(
+        'Normal resting range guidance appears after your first HR log.',
+        style: TextStyle(color: _textMuted, fontSize: 12),
+      );
+    }
+
+    final bpm = int.tryParse(logs.last.value) ?? 0;
+    final clamped = bpm.clamp(40, 140);
+    final position = (clamped - 40) / 100;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Stack(
+          alignment: Alignment.centerLeft,
+          children: [
+            Container(
+              height: 10,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(999),
+                gradient: LinearGradient(
+                  colors: [
+                    _tanButtonLifted,
+                    _vitalSuccess,
+                    _vitalSuccess,
+                    _tanButtonLifted,
+                  ],
+                  stops: const [0, 0.2, 0.6, 1],
+                ),
+              ),
+            ),
+            FractionallySizedBox(
+              widthFactor: position,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Container(
+                  width: 18,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: _primaryBlack,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: _creamCardTop, width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _primaryBlack.withValues(alpha: 0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('40', style: TextStyle(color: _textMuted, fontSize: 11)),
+            Text(
+              '60-100 normal',
+              style: TextStyle(
+                color: _vitalSuccess,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text('140', style: TextStyle(color: _textMuted, fontSize: 11)),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ChartEmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  const _ChartEmptyState({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: _tanButtonLifted,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: _surfaceBorder),
+          ),
+          child: Icon(icon, color: _primaryBlack, size: 22),
+        ),
+        SizedBox(height: 10),
+        Text(
+          title,
+          style: TextStyle(
+            color: _textMain,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
           ),
         ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: statusColor,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Text(
-            statusLabel,
-            style: TextStyle(
-              color: _creamBg,
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+        SizedBox(height: 4),
+        Text(
+          subtitle,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: _textMuted, fontSize: 12),
         ),
       ],
     ),
   );
+}
+
+FlTitlesData _bottomDateTitles(List<LogEntry> logs) {
+  final interval = logs.length <= 4 ? 1.0 : (logs.length / 4).ceilToDouble();
+
+  return FlTitlesData(
+    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+    leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+    bottomTitles: AxisTitles(
+      sideTitles: SideTitles(
+        showTitles: true,
+        reservedSize: 30,
+        interval: interval,
+        getTitlesWidget: (value, meta) {
+          final index = value.round();
+          if (index < 0 || index >= logs.length || value != index) {
+            return const SizedBox.shrink();
+          }
+          return SideTitleWidget(
+            meta: meta,
+            space: 8,
+            child: Text(
+              _formatTinyDate(logs[index].timestamp),
+              style: TextStyle(
+                color: _textMuted,
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          );
+        },
+      ),
+    ),
+  );
+}
+
+String _hrStatusLabel(List<LogEntry> logs) {
+  if (logs.isEmpty) return 'ADD';
+  final bpm = int.tryParse(logs.last.value);
+  if (bpm == null) return 'CHECK';
+  if (bpm < 60 || bpm > 100) return 'WATCH';
+  return 'NORMAL';
+}
+
+Color _hrStatusColor(List<LogEntry> logs) {
+  if (logs.isEmpty) return _textMuted;
+  final bpm = int.tryParse(logs.last.value);
+  if (bpm == null || bpm < 60 || bpm > 100) {
+    return const Color(0xFFE8A317);
+  }
+  return _vitalSuccess;
 }
 
 String _formatShortDate(DateTime date) {
@@ -557,4 +798,9 @@ String _formatShortDate(DateTime date) {
     'Dec',
   ];
   return '${months[date.month - 1]} ${date.day}, ${date.year}';
+}
+
+String _formatTinyDate(DateTime date) {
+  const months = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+  return '${months[date.month - 1]} ${date.day}';
 }
