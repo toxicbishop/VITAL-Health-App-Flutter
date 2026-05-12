@@ -35,36 +35,21 @@ class AppColors {
 }
 
 class AppTheme {
+  static String? get _fontFamily => GoogleFonts.playfairDisplay().fontFamily;
+
   static TextTheme _buildTextTheme(TextTheme base) {
-    return GoogleFonts.playfairDisplayTextTheme(base).copyWith(
-      // Headings: Playfair Display
-      displayLarge: GoogleFonts.playfairDisplay(textStyle: base.displayLarge),
-      displayMedium: GoogleFonts.playfairDisplay(textStyle: base.displayMedium),
-      displaySmall: GoogleFonts.playfairDisplay(textStyle: base.displaySmall),
-      headlineLarge: GoogleFonts.playfairDisplay(textStyle: base.headlineLarge),
-      headlineMedium: GoogleFonts.playfairDisplay(
-        textStyle: base.headlineMedium,
-      ),
-      headlineSmall: GoogleFonts.playfairDisplay(textStyle: base.headlineSmall),
-      // Body & labels: Inter
-      titleLarge: GoogleFonts.inter(textStyle: base.titleLarge),
-      titleMedium: GoogleFonts.inter(textStyle: base.titleMedium),
-      titleSmall: GoogleFonts.inter(textStyle: base.titleSmall),
-      bodyLarge: GoogleFonts.inter(textStyle: base.bodyLarge),
-      bodyMedium: GoogleFonts.inter(textStyle: base.bodyMedium),
-      bodySmall: GoogleFonts.inter(textStyle: base.bodySmall),
-      labelLarge: GoogleFonts.inter(textStyle: base.labelLarge),
-      labelMedium: GoogleFonts.inter(textStyle: base.labelMedium),
-      labelSmall: GoogleFonts.inter(textStyle: base.labelSmall),
-    );
+    return GoogleFonts.playfairDisplayTextTheme(base);
   }
 
   static ThemeData get lightTheme {
     final base = ThemeData(useMaterial3: true, brightness: Brightness.light);
+    final textTheme = _buildTextTheme(base.textTheme);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      textTheme: _buildTextTheme(base.textTheme),
+      fontFamily: _fontFamily,
+      textTheme: textTheme,
+      primaryTextTheme: textTheme,
       scaffoldBackgroundColor: AppColors.cream,
       colorScheme: ColorScheme.light(
         primary: AppColors.gold,
@@ -169,10 +154,13 @@ class AppTheme {
 
   static ThemeData get darkTheme {
     final base = ThemeData(useMaterial3: true, brightness: Brightness.dark);
+    final textTheme = _buildTextTheme(base.textTheme);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      textTheme: _buildTextTheme(base.textTheme),
+      fontFamily: _fontFamily,
+      textTheme: textTheme,
+      primaryTextTheme: textTheme,
       scaffoldBackgroundColor: AppColors.darkBg,
       colorScheme: ColorScheme.dark(
         primary: AppColors.gold,

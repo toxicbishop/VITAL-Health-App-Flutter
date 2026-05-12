@@ -58,6 +58,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             _dialogButton(
               'Log Weight Only',
+              icon: Icons.monitor_weight_outlined,
               fill: _tanButton,
               fg: _textMain,
               onTap: () {
@@ -68,6 +69,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SizedBox(height: 12),
             _dialogButton(
               'Log BP Only',
+              icon: Icons.favorite_border,
               fill: _tanButton,
               fg: _textMain,
               onTap: () {
@@ -78,6 +80,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SizedBox(height: 12),
             _dialogButton(
               'Log Both',
+              icon: Icons.add_chart_outlined,
               fill: _primaryBlack,
               fg: _creamBg,
               bold: true,
@@ -258,9 +261,27 @@ class _HomeTab extends StatelessWidget {
         .where((v) => v != null && v >= 130)
         .length;
 
-    final lastWeight = _latest(logs, 'WEIGHT')?.value ?? '--';
-    final lastBp = _latest(logs, 'BLOOD_PRESSURE')?.value ?? '--';
-    final lastHr = _latest(logs, 'HEART_RATE')?.value ?? '--';
+    final latestWeight = _latest(logs, 'WEIGHT');
+    final latestBp = _latest(logs, 'BLOOD_PRESSURE');
+    final latestHr = _latest(logs, 'HEART_RATE');
+    final lastWeight = latestWeight?.value ?? '--';
+    final lastBp = latestBp?.value ?? '--';
+    final lastHr = latestHr?.value ?? '--';
+    final hasWeightToday =
+        latestWeight != null && latestWeight.timestamp.isAfter(todayMidnight);
+    final hasBpToday =
+        latestBp != null && latestBp.timestamp.isAfter(todayMidnight);
+    final hasMoodToday = todayMood != null;
+    final hasMedicationPlan = latestMed != null;
+    final completedTasks = [
+      hasWeightToday,
+      hasBpToday,
+      hasMoodToday,
+      medTaken || !hasMedicationPlan,
+    ].where((done) => done).length;
+    final totalTasks = 4;
+    final bpStatus = _bpStatus(lastBp);
+    final hrStatus = _hrStatus(lastHr);
 
     final nextAppointment = _latest(logs, 'APPOINTMENT');
 
@@ -269,42 +290,58 @@ class _HomeTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Vital Dashboard',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: _textMain,
+          _DashboardReveal(
+            delay: const Duration(milliseconds: 40),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Vital Dashboard',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: _textMain,
+                        ),
                       ),
-                    ),
-                    Text(
-                      todayStr,
-                      style: TextStyle(color: _textMuted, fontSize: 14),
-                    ),
-                  ],
+                      Text(
+                        todayStr,
+                        style: TextStyle(color: _textMuted, fontSize: 14),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  color: _creamCardTop,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: _surfaceBorder),
-                  boxShadow: AppGlobals.softShadow,
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: _creamCardTop,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: _surfaceBorder),
+                    boxShadow: AppGlobals.softShadow,
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.exit_to_app, color: _textMuted),
+                    onPressed: onLogout,
+                    tooltip: 'Logout',
+                  ),
                 ),
-                child: IconButton(
-                  icon: Icon(Icons.exit_to_app, color: _textMuted),
-                  onPressed: onLogout,
-                  tooltip: 'Logout',
-                ),
-              ),
-            ],
+              ],
+            ),
+          ),
+          SizedBox(height: 18),
+          _DashboardReveal(
+            delay: const Duration(milliseconds: 90),
+            child: _TodaySummaryCard(
+              userName: userName,
+              completedTasks: completedTasks,
+              totalTasks: totalTasks,
+              medTaken: medTaken,
+              hasMedicationPlan: hasMedicationPlan,
+              nextAppointment: nextAppointment,
+              elevatedBpDays: elevatedBpDays,
+            ),
           ),
           SizedBox(height: 24),
           if (elevatedBpDays >= 2 && !dismissedAlerts.contains('bp')) ...[
@@ -319,35 +356,44 @@ class _HomeTab extends StatelessWidget {
             ),
             SizedBox(height: 24),
           ],
-          Row(
-            children: [
-              Expanded(
-                child: _MetricCard(
-                  title: 'WEIGHT',
-                  icon: Icons.person_outline,
-                  value: '$lastWeight kg',
-                  onLog: onLogVitalsTile,
+          _DashboardReveal(
+            delay: const Duration(milliseconds: 140),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _MetricCard(
+                    title: 'WEIGHT',
+                    icon: Icons.person_outline,
+                    value: '$lastWeight kg',
+                    statusLabel: hasWeightToday ? 'TODAY' : 'ADD',
+                    statusColor: hasWeightToday ? _vitalSuccess : _textMuted,
+                    onLog: onLogVitalsTile,
+                  ),
                 ),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: _MetricCard(
-                  title: 'BP',
-                  icon: Icons.favorite_border,
-                  value: lastBp,
-                  onLog: onLogBpTile,
+                SizedBox(width: 12),
+                Expanded(
+                  child: _MetricCard(
+                    title: 'BP',
+                    icon: Icons.favorite_border,
+                    value: lastBp,
+                    statusLabel: bpStatus.label,
+                    statusColor: bpStatus.color,
+                    onLog: onLogBpTile,
+                  ),
                 ),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: _MetricCard(
-                  title: 'HR',
-                  icon: Icons.monitor_heart_outlined,
-                  value: lastHr == '--' ? '--' : '$lastHr bpm',
-                  onLog: onLogHr,
+                SizedBox(width: 12),
+                Expanded(
+                  child: _MetricCard(
+                    title: 'HR',
+                    icon: Icons.monitor_heart_outlined,
+                    value: lastHr == '--' ? '--' : '$lastHr bpm',
+                    statusLabel: hrStatus.label,
+                    statusColor: hrStatus.color,
+                    onLog: onLogHr,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           SizedBox(height: 24),
           _Section(
@@ -614,7 +660,12 @@ class _HomeTab extends StatelessWidget {
     bool bold = false,
   }) {
     return ElevatedButton(
-      onPressed: onTap,
+      onPressed: onTap == null
+          ? null
+          : () {
+              HapticFeedback.lightImpact();
+              onTap();
+            },
       style: ElevatedButton.styleFrom(
         backgroundColor: fill ?? _primaryBlack,
         foregroundColor: fg ?? _creamBg,
@@ -639,7 +690,10 @@ class _HomeTab extends StatelessWidget {
     required String label,
     required VoidCallback onTap,
   }) => InkWell(
-    onTap: onTap,
+    onTap: () {
+      HapticFeedback.selectionClick();
+      onTap();
+    },
     child: Padding(
       padding: EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -659,6 +713,182 @@ class _HomeTab extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // SHARED COMPONENTS
 // ---------------------------------------------------------------------------
+class _DashboardReveal extends StatelessWidget {
+  final Widget child;
+  final Duration delay;
+  const _DashboardReveal({required this.child, required this.delay});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: Duration(milliseconds: 520 + delay.inMilliseconds),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        final delayed =
+            ((value * (520 + delay.inMilliseconds)) - delay.inMilliseconds)
+                .clamp(0.0, 520.0) /
+            520.0;
+        return Opacity(
+          opacity: delayed,
+          child: Transform.translate(
+            offset: Offset(0, 18 * (1 - delayed)),
+            child: child,
+          ),
+        );
+      },
+      child: child,
+    );
+  }
+}
+
+class _TodaySummaryCard extends StatelessWidget {
+  final String userName;
+  final int completedTasks;
+  final int totalTasks;
+  final bool medTaken;
+  final bool hasMedicationPlan;
+  final LogEntry? nextAppointment;
+  final int elevatedBpDays;
+
+  const _TodaySummaryCard({
+    required this.userName,
+    required this.completedTasks,
+    required this.totalTasks,
+    required this.medTaken,
+    required this.hasMedicationPlan,
+    required this.nextAppointment,
+    required this.elevatedBpDays,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final name = userName.trim().isEmpty ? 'there' : userName.trim();
+    final progress = completedTasks / totalTasks;
+    final insight = elevatedBpDays >= 2
+        ? 'Keep an eye on BP today'
+        : medTaken || !hasMedicationPlan
+        ? 'You are steady today'
+        : 'Medication is still pending';
+
+    return Container(
+      padding: EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [_primaryBlack, _textMuted],
+        ),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: _primaryBlack.withValues(alpha: 0.24),
+            blurRadius: 28,
+            offset: const Offset(0, 16),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Good ${_dayPart()}, $name',
+                      style: TextStyle(
+                        color: _creamBg,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      insight,
+                      style: TextStyle(
+                        color: _creamBg.withValues(alpha: 0.72),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: _creamBg.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: _creamBg.withValues(alpha: 0.18)),
+                ),
+                child: Icon(Icons.favorite, color: _creamBg, size: 22),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 8,
+              backgroundColor: _creamBg.withValues(alpha: 0.16),
+              color: _tanButtonLifted,
+            ),
+          ),
+          SizedBox(height: 10),
+          Row(
+            children: [
+              Text(
+                '$completedTasks of $totalTasks health tasks complete',
+                style: TextStyle(
+                  color: _creamBg.withValues(alpha: 0.82),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Spacer(),
+              if (nextAppointment != null)
+                Icon(
+                  Icons.event_available_outlined,
+                  color: _creamBg.withValues(alpha: 0.72),
+                  size: 18,
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  final String label;
+  final Color color;
+  const _StatusPill({required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: color.withValues(alpha: AppGlobals.isDark ? 0.18 : 0.12),
+      borderRadius: BorderRadius.circular(999),
+      border: Border.all(color: color.withValues(alpha: 0.32)),
+    ),
+    child: Text(
+      label,
+      style: TextStyle(
+        color: color,
+        fontSize: 10,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 0.6,
+      ),
+    ),
+  );
+}
+
 class _Section extends StatelessWidget {
   final String title;
   final Widget child;
@@ -711,11 +941,15 @@ class _MetricCard extends StatelessWidget {
   final String title;
   final IconData icon;
   final String value;
+  final String statusLabel;
+  final Color statusColor;
   final VoidCallback onLog;
   const _MetricCard({
     required this.title,
     required this.icon,
     required this.value,
+    required this.statusLabel,
+    required this.statusColor,
     required this.onLog,
   });
 
@@ -723,7 +957,10 @@ class _MetricCard extends StatelessWidget {
   Widget build(BuildContext context) => _CardContainer(
     child: InkWell(
       borderRadius: BorderRadius.circular(12),
-      onTap: onLog,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onLog();
+      },
       child: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -762,9 +999,14 @@ class _MetricCard extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
+            SizedBox(height: 10),
+            _StatusPill(label: statusLabel, color: statusColor),
             SizedBox(height: 16),
             OutlinedButton(
-              onPressed: onLog,
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                onLog();
+              },
               style: OutlinedButton.styleFrom(
                 foregroundColor: _textMain,
                 backgroundColor: _creamCardTop,
@@ -1439,24 +1681,36 @@ Widget _field({
 Widget _dialogButton(
   String label, {
   required VoidCallback onTap,
+  IconData? icon,
   Color? fill,
-
   Color? fg,
-
   bool bold = false,
 }) => SizedBox(
   width: double.infinity,
   child: ElevatedButton(
-    onPressed: onTap,
+    onPressed: () {
+      HapticFeedback.lightImpact();
+      onTap();
+    },
     style: ElevatedButton.styleFrom(
       backgroundColor: fill,
       foregroundColor: fg,
+      elevation: 8,
+      shadowColor: (fill ?? _primaryBlack).withValues(alpha: 0.22),
       padding: EdgeInsets.symmetric(vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
-    child: Text(
-      label,
-      style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (icon != null) ...[Icon(icon, size: 18), SizedBox(width: 8)],
+        Text(
+          label,
+          style: TextStyle(
+            fontWeight: bold ? FontWeight.bold : FontWeight.w600,
+          ),
+        ),
+      ],
     ),
   ),
 );
@@ -1465,6 +1719,46 @@ LogEntry? _latest(List<LogEntry> logs, String type) {
   final filtered = logs.where((l) => l.logType == type);
   if (filtered.isEmpty) return null;
   return filtered.reduce((a, b) => a.timestamp.isAfter(b.timestamp) ? a : b);
+}
+
+String _dayPart() {
+  final hour = DateTime.now().hour;
+  if (hour < 12) return 'morning';
+  if (hour < 17) return 'afternoon';
+  return 'evening';
+}
+
+_MetricStatus _bpStatus(String value) {
+  if (value == '--') return _MetricStatus('ADD', _textMuted);
+  final parts = value.split('/');
+  final systolic = int.tryParse(parts.first);
+  final diastolic = parts.length > 1 ? int.tryParse(parts[1]) : null;
+  if (systolic == null || diastolic == null) {
+    return _MetricStatus('CHECK', const Color(0xFFE8A317));
+  }
+  if (systolic >= 140 || diastolic >= 90) {
+    return _MetricStatus('HIGH', AppGlobals.dangerRed);
+  }
+  if (systolic >= 130 || diastolic >= 80) {
+    return _MetricStatus('WATCH', const Color(0xFFE8A317));
+  }
+  return _MetricStatus('NORMAL', _vitalSuccess);
+}
+
+_MetricStatus _hrStatus(String value) {
+  if (value == '--') return _MetricStatus('ADD', _textMuted);
+  final bpm = int.tryParse(value);
+  if (bpm == null) return _MetricStatus('CHECK', const Color(0xFFE8A317));
+  if (bpm < 60 || bpm > 100) {
+    return _MetricStatus('WATCH', const Color(0xFFE8A317));
+  }
+  return _MetricStatus('NORMAL', _vitalSuccess);
+}
+
+class _MetricStatus {
+  final String label;
+  final Color color;
+  const _MetricStatus(this.label, this.color);
 }
 
 String _formatDate(DateTime d) {
