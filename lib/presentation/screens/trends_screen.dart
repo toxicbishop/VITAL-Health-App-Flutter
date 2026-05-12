@@ -43,6 +43,34 @@ class _TrendsScreenState extends State<TrendsScreen> {
     }
   }
 
+  Future<void> _pickCustomFrom() async {
+    final now = DateTime.now();
+    final selected = await showDatePicker(
+      context: context,
+      initialDate: _customFrom ?? now.subtract(const Duration(days: 7)),
+      firstDate: DateTime(now.year - 5),
+      lastDate: now,
+      helpText: 'Show trends from',
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: _primaryBlack,
+              onPrimary: _creamBg,
+              surface: _creamCardTop,
+              onSurface: _textMain,
+            ),
+            dialogTheme: DialogThemeData(backgroundColor: _creamCardTop),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (selected == null) return;
+    setState(() => _customFrom = selected);
+  }
+
   @override
   Widget build(BuildContext context) {
     final logs = context.watch<HealthDataProvider>().logs;
@@ -90,6 +118,13 @@ class _TrendsScreenState extends State<TrendsScreen> {
                 _customFrom = null;
               }),
             ),
+            if (_customFrom != null) ...[
+              SizedBox(height: 12),
+              _CustomDateChip(
+                date: _customFrom!,
+                onClear: () => setState(() => _customFrom = null),
+              ),
+            ],
             SizedBox(height: 24),
             _ChartCard(
               title: 'WEIGHT HISTORY',
@@ -144,18 +179,72 @@ class _TrendsScreenState extends State<TrendsScreen> {
           ),
         ],
       ),
-      Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: _creamCardTop,
+      Tooltip(
+        message: 'Pick start date',
+        child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _surfaceBorder),
-          boxShadow: AppGlobals.softShadow,
+          onTap: _pickCustomFrom,
+          child: Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: _creamCardTop,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: _surfaceBorder),
+              boxShadow: AppGlobals.softShadow,
+            ),
+            child: Icon(
+              Icons.calendar_month_outlined,
+              color: _primaryBlack,
+              size: 28,
+            ),
+          ),
         ),
-        child: Icon(Icons.analytics_outlined, color: _primaryBlack, size: 28),
       ),
     ],
+  );
+}
+
+class _CustomDateChip extends StatelessWidget {
+  final DateTime date;
+  final VoidCallback onClear;
+  const _CustomDateChip({required this.date, required this.onClear});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    decoration: BoxDecoration(
+      color: _creamCardTop,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: _surfaceBorder),
+      boxShadow: AppGlobals.softShadow,
+    ),
+    child: Row(
+      children: [
+        Icon(Icons.date_range_outlined, color: _primaryBlack, size: 18),
+        SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            'Showing since ${_formatShortDate(date)}',
+            style: TextStyle(
+              color: _textMain,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: onClear,
+          style: TextButton.styleFrom(
+            foregroundColor: _textMuted,
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            minimumSize: const Size(0, 32),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: Text('Clear'),
+        ),
+      ],
+    ),
   );
 }
 
@@ -450,4 +539,22 @@ class _VitalRowCard extends StatelessWidget {
       ],
     ),
   );
+}
+
+String _formatShortDate(DateTime date) {
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  return '${months[date.month - 1]} ${date.day}, ${date.year}';
 }
