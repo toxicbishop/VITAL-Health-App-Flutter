@@ -4,9 +4,13 @@
 
 **A comprehensive health tracking system built with Flutter**
 
-[![Dart](https://img.shields.io/badge/Dart-3.x-blue?logo=dart)](https://dart.dev)
-[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter)](https://flutter.dev)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-red.svg)](LICENSE)
+[![Dart CI](https://github.com/toxicbishop/VITAL-Health-App-Flutter/actions/workflows/dart.yml/badge.svg)](https://github.com/toxicbishop/VITAL-Health-App-Flutter/actions/workflows/dart.yml)
+[![Python CI](https://github.com/toxicbishop/VITAL-Health-App-Flutter/actions/workflows/python.yml/badge.svg)](https://github.com/toxicbishop/VITAL-Health-App-Flutter/actions/workflows/python.yml)
+![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat-square&logo=dart&logoColor=white)
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat-square&logo=flutter&logoColor=white)
+![Version](https://img.shields.io/badge/version-2.5.0%2B1-blue.svg)
+![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS%20%7C%20Web-lightgrey.svg)
+![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-red.svg)
 
 </div>
 
