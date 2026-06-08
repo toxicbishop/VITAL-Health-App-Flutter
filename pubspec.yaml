@@ -10,10 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: 1.0.8
+  cupertino_icons: ^1.0.9
   provider: 6.1.5+1
   http: 1.6.0
-  shared_preferences: 2.3.0
+  shared_preferences: ^2.5.5
   google_fonts: ^8.0.2
   fl_chart: ^1.2.0
   pdf: ^3.12.0
